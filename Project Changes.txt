@@ -1,0 +1,4 @@
+Category should be changed. categories are repeated
+Renting Item - Pickup and return location screen(pickup location file should be removed)
+product reservation error message
+product add page/update page shoud be separated
