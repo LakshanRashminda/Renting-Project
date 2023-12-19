@@ -168,7 +168,7 @@ const ProductListScreen = () => {
                     <div>
                         {userInfo.isAdmin == "true" &&
                             <Button type="button" onClick={createHandler}>
-                                Create Product
+                                Add Product
                             </Button>
                         }
                     </div>
@@ -211,7 +211,7 @@ const ProductListScreen = () => {
                                         <td>
                                             <Button
                                                 type="button"
-                                                variant="light"
+                                                variant="info"
                                                 onClick={() => navigate(`/admin/product/${product._id}`)}
                                             >
                                                 Edit
@@ -219,7 +219,7 @@ const ProductListScreen = () => {
                                             &nbsp;
                                             <Button
                                                 type="button"
-                                                variant="light"
+                                                variant="danger"
                                                 onClick={() => { deleteHandler(product) }}
                                             >
                                                 Delete

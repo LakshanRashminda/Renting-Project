@@ -24,7 +24,8 @@ const reservationSchema = new mongoose.Schema(
             fullName: { type: String, required: false },
             address: { type: String, required: true },
             city: { type: String, required: false },
-            postalCode: { type: String, required: false }
+            postalCode: { type: String, required: false },
+            returnOption:{type:String,required:true}
         },
         paymentMethod: { type: String, required: true },
         paymentResult: {

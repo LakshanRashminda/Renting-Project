@@ -161,7 +161,8 @@ const ProductEditScreen = () => {
             <Helmet>
                 <title>Edit Product </title>
             </Helmet>
-            <h2 className="mb-5">Edit Product </h2>
+            <div className='text-center'><h2 className="mb-5">Edit Product </h2></div>
+            
 
             {loading ? (
                 <LoadingBox></LoadingBox>
@@ -263,7 +264,7 @@ const ProductEditScreen = () => {
                             required
                         />
                     </Form.Group>
-                    <div className="mb-3">
+                    <div className="mb-3 text-center">
                         <Button
                             disabled={loadingUpdate}
                             type="submit">

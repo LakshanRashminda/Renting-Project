@@ -91,7 +91,7 @@ const ProfileScreen = () => {
                     <Form.Control value={confirmPassword} type='password' onChange={(e) => setConfirmPassword(e.target.value)} required />
                 </Form.Group>
 
-                <div className="update-button">
+                <div className="update-button text-center">
                     <Button type='submit' >Update</Button>
                 </div>
                 

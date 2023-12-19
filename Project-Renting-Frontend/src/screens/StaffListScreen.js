@@ -62,7 +62,8 @@ const StaffListScreen = () => {
       <Helmet>
         <title>Staff Members</title>
       </Helmet>
-      <h2 className="mb-5">Staff Members</h2>
+      <div className="text-center"><h2 className="mb-5">Staff Members</h2></div>
+      
 
       {loading ? (
         <LoadingBox></LoadingBox>
@@ -91,7 +92,7 @@ const StaffListScreen = () => {
                 <td>
                   <Button
                     type="button"
-                    variant="light"
+                    variant="info"
                     onClick={() => navigate(`/admin/user/${user._id}`)}
                   >
                     Edit

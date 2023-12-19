@@ -62,7 +62,8 @@ const UserListScreen = () => {
       <Helmet>
         <title>Users</title>
       </Helmet>
-      <h2 className="mb-5">Users</h2>
+      <div className="text-center"><h2 className="mb-5">Users</h2></div>
+      
 
       {loading ? (
         <LoadingBox></LoadingBox>
@@ -91,7 +92,7 @@ const UserListScreen = () => {
                 <td>
                   <Button
                     type="button"
-                    variant="light"
+                    variant="info"
                     onClick={() => navigate(`/admin/user/${user._id}`)}
                   >
                     Edit

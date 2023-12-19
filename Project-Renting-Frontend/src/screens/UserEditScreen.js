@@ -100,7 +100,8 @@ const UserEditScreen = () => {
       <Helmet>
         <title>Edit User ${userId}</title>
       </Helmet>
-      <h2 className="mb-5">Edit User {userId}</h2>
+      {/* <h2 className="mb-5">Edit User {userId}</h2> */}
+      <div className="text-center"> <h2 className="mb-5">Edit User</h2></div>
 
       {loading ? (
         <LoadingBox></LoadingBox>
@@ -144,7 +145,7 @@ const UserEditScreen = () => {
                         onChange={(e) => setIsAgent(e.target.checked)}
                     /> */}
 
-          <div className="mb-3">
+          <div className="mb-3 text-center">
             <Button disabled={loadingUpdate} type="submit">
               Update
             </Button>

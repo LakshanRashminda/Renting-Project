@@ -297,7 +297,7 @@ const ReservationListScreen = () => {
                             <td>
                                 <Button
                                     type="button"
-                                    variant="light"
+                                    variant="info"
                                     onClick={() => {
                                         navigate(`/reservation/${order._id}`);
                                     }}

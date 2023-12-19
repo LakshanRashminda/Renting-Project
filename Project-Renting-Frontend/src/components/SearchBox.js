@@ -13,8 +13,8 @@ const SearchBox = () => {
     }
     return (
         <Form className='d-flex me-auto' onSubmit={submitHandler}>
-            <InputGroup>
-                <FormControl type='text' name='query' id='query' onChange={(e) => setQuery(e.target.value)} placeholder="search products..." aria-label='Search Products' aria-describedby='button-search'>
+            <InputGroup style={{ flexWrap: 'nowrap' }}>
+                <FormControl type='text' name='query' id='query' style={{ width: '300px' }} onChange={(e) => setQuery(e.target.value)} placeholder="search products..." aria-label='Search Products' aria-describedby='button-search'>
                 </FormControl>
                 <Button variant='outline-primary' type="submit" id="button-search"><i className='fas fa-search'></i></Button>
             </InputGroup>

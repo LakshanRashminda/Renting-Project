@@ -46,7 +46,7 @@ const HomeScreen = () => {
     return (
         <div>
             <Helmet>
-                <title>TreckPing</title>
+                <title>Renting</title>
             </Helmet>
             <div className=' hero' ></div>
 

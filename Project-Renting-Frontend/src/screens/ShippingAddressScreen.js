@@ -110,8 +110,7 @@ const ShippingAddressScreen = () => {
         <Form>
           <Form.Label>
             <strong>
-              You can pickup gears through our sales agents in your area. Or we
-              can deliver them to your doorstep.
+              Enter the shipping address for deliver them to your doorstep.
             </strong>{" "}
             <br />
             <br />{" "}
@@ -136,7 +135,7 @@ const ShippingAddressScreen = () => {
                         onChange={() => setIsPickup(!(isPickup))}
                     /> */}
           <br />
-          <hr />
+          {/* <hr /> */}
           {isPickup ? (
             <div>
               <Form.Group className="mt-5 mb-3" controlId="fullName">
@@ -215,7 +214,7 @@ const ShippingAddressScreen = () => {
                 />
               </Form.Group>
               <br />
-              <div className="mb-3">
+              <div className="mb-3 text-center">
                 <Button variant="primary" onClick={addressHandler}>
                   Continue
                 </Button>

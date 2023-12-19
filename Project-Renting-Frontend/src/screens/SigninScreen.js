@@ -53,7 +53,8 @@ const SigninScreen = () => {
       <Helmet>
         <title>Sign In</title>
       </Helmet>
-      <h1 className="my-3">Sign In</h1>
+      <div className="text-center"><h1 className="my-3">Sign In</h1></div>
+      
       <Form onSubmit={submitHandler}>
         <Form.Group className="mb-3" controlId="email">
           <Form.Label>Email</Form.Label>
@@ -71,7 +72,7 @@ const SigninScreen = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </Form.Group>
-        <div className="mb-3">
+        <div className="mb-3 text-center">
           <Button type="submit">Sign In</Button>
         </div>
         <div className="mb-3">

@@ -214,6 +214,34 @@ export default function ReservationScreen() {
     });
   }
 
+  async function payOrderHandler() {
+    swal({
+      title: "Are you sure?",
+      text: "Payment status of this order will be changed as Paid !",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    }).then(async (willYes) => {
+      if (willYes) {
+        try {
+          dispatch({ type: "PAY_REQUEST" });
+          const { data } = await axios.put(
+            `/api/reservations/${order._id}/pay`,
+            {},
+            {
+              headers: { authorization: `Bearer ${userInfo.token}` },
+            }
+          );
+          dispatch({ type: "PAY_SUCCESS", payload: data });
+          toast.success("Order is paid");
+        } catch (err) {
+          dispatch({ type: "PAY_FAIL", payload: getError(err) });
+          toast.error(getError(err));
+        }
+      }
+    });
+  }
+
   //handle delivered orders
   async function deliverOrderHandler() {
     swal({
@@ -382,13 +410,19 @@ export default function ReservationScreen() {
               <Card.Text>
                 {/* todo */}
                 <strong>Customer Name : </strong>{" "}
-                {order.shippingAddress.customerName}
+                {/* {order.shippingAddress.customerName} */}
+                {order.shippingAddress.fullName}
                 <br />
-                <strong>Pickup Location : </strong>{" "}
-                {order.shippingAddress.pickupLocation} <br />
-                <strong>Return Location : </strong>{" "}
+                {/* <strong>Pickup Location : </strong>{" "}
+                {order.shippingAddress.pickupLocation} <br /> */}
+                <strong>Return Type : </strong>{" "}
+                {order.shippingAddress.returnOption} <br />
+                {/* <strong>Return Location : </strong>{" "}
                 {order.shippingAddress.returnLocation},{" "}
-                {order.shippingAddress.city}, {order.shippingAddress.postalCode}
+                {order.shippingAddress.city}, {order.shippingAddress.postalCode} */}
+                <strong>Shipping Address : </strong>{" "}
+                {order.shippingAddress.address}, {order.shippingAddress.city},{" "}
+                {order.shippingAddress.postalCode}
               </Card.Text>
               {order.isDispatched ? (
                 <MessageBox variant="success">
@@ -539,32 +573,43 @@ export default function ReservationScreen() {
                     </Col>
                   </Row>
                 </ListGroup.Item>
-                {userInfo.isAdmin == "false" &&
-                  userInfo.isAdmin == "false" &&
-                  !order.isPaid && (
-                    <ListGroup.Item>
-                      {isPending ? (
-                        <LoadingBox />
-                      ) : (
-                        <div>
+                {userInfo.isAdmin == "false" && !order.isPaid && (
+                  <ListGroup.Item>
+                    {isPending ? (
+                      <LoadingBox />
+                    ) : (
+                      <div>
+                        {order.paymentMethod == "Visa" && (
                           <PayPalButtons
                             createOrder={createOrder}
                             onApprove={onApprove}
                             onError={onError}
                           ></PayPalButtons>
-                        </div>
-                      )}
-                      {loadingPay && <LoadingBox></LoadingBox>}
-                    </ListGroup.Item>
-                  )}
+                        )}
+                      </div>
+                    )}
+                    {loadingPay && <LoadingBox></LoadingBox>}
+                  </ListGroup.Item>
+                )}
+                {userInfo.isAdmin == "true" && !order.isDispatched && (
+                  <ListGroup.Item>
+                    {loadingDeliver && <LoadingBox></LoadingBox>}
+                    <div className="d-grid mt-4">
+                      <Button type="button" onClick={dispatchOrderHandler}>
+                        Dispatch Order
+                      </Button>
+                    </div>
+                  </ListGroup.Item>
+                )}
+
                 {userInfo.isAdmin == "true" &&
-                  order.isPaid &&
-                  !order.isDispatched && (
+                  order.isDispatched &&
+                  !order.isPaid && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
                       <div className="d-grid mt-4">
-                        <Button type="button" onClick={dispatchOrderHandler}>
-                          Dispatch Order
+                        <Button type="button" onClick={payOrderHandler}>
+                          Pay Order
                         </Button>
                       </div>
                     </ListGroup.Item>
@@ -602,8 +647,25 @@ export default function ReservationScreen() {
                   )}
 
                 {/* {userInfo.isAgent == "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Dispatched" && ( */}
-                {order.isPaid &&
+                {userInfo.isAdmin != "true" &&
+                  order.isPaid &&
                   order.isDispatched &&
+                  order.paymentMethod == "COD" &&
+                  order.deliveryStatus == "Dispatched" && (
+                    <ListGroup.Item>
+                      {loadingDeliver && <LoadingBox></LoadingBox>}
+                      <div className="d-grid mt-4">
+                        <Button type="button" onClick={deliverOrderHandler}>
+                          Order Delivered
+                        </Button>
+                      </div>
+                    </ListGroup.Item>
+                  )}
+
+                {userInfo.isAdmin == "true" &&
+                  order.isPaid &&
+                  order.isDispatched &&
+                  order.paymentMethod == "Visa" &&
                   order.deliveryStatus == "Dispatched" && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
@@ -617,7 +679,7 @@ export default function ReservationScreen() {
 
                 {/* for customers */}
                 {/* {userInfo.isAdmin != "true" && userInfo.isAgent != "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Delivered" && ( */}
-                {userInfo.isAdmin != "true" &&
+                {/* {userInfo.isAdmin != "true" &&
                   order.isPaid &&
                   order.isDispatched &&
                   order.deliveryStatus == "Delivered" && (
@@ -629,10 +691,10 @@ export default function ReservationScreen() {
                         </Button>
                       </div>
                     </ListGroup.Item>
-                  )}
+                  )} */}
 
                 {/* {userInfo.isAgent == "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Delivered" && ( */}
-                {order.isPaid &&
+                {/* {order.isPaid &&
                   order.isDispatched &&
                   order.deliveryStatus == "Delivered" && (
                     <ListGroup.Item>
@@ -647,11 +709,11 @@ export default function ReservationScreen() {
                         </Button>
                       </div>
                     </ListGroup.Item>
-                  )}
+                  )} */}
 
                 {/* for customers */}
                 {/* {userInfo.isAdmin != "true" && userInfo.isAgent != "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Released" && ( */}
-                {userInfo.isAdmin != "true" &&
+                {/* {userInfo.isAdmin != "true" &&
                   order.isPaid &&
                   order.isDispatched &&
                   order.deliveryStatus == "Released" && (
@@ -663,10 +725,10 @@ export default function ReservationScreen() {
                         </Button>
                       </div>
                     </ListGroup.Item>
-                  )}
+                  )} */}
 
                 {/* {userInfo.isAgent == "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Released" && ( */}
-                {order.isPaid &&
+                {/* {order.isPaid &&
                   order.isDispatched &&
                   order.deliveryStatus == "Released" && (
                     <ListGroup.Item>
@@ -681,35 +743,32 @@ export default function ReservationScreen() {
                         </Button>
                       </div>
                     </ListGroup.Item>
-                  )}
+                  )} */}
 
-                {/* for customers */}
-                {/* {userInfo.isAdmin != "true" && userInfo.isAgent != "true" && order.isPaid && order.isDispatched && (order.deliveryStatus == "Received" || order.deliveryStatus == "Returned" || order.deliveryStatus == "Completed") && ( */}
+                {/* {userInfo.isAgent == "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Received" && ( */}
                 {userInfo.isAdmin != "true" &&
                   order.isPaid &&
                   order.isDispatched &&
-                  (order.deliveryStatus == "Received" ||
-                    order.deliveryStatus == "Returned" ||
-                    order.deliveryStatus == "Completed") && (
+                  order.deliveryStatus == "Delivered" && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
                       <div className="d-grid mt-4">
-                        <Button variant="success" disabled>
-                          Order Completed
+                        <Button type="button" onClick={returnOrderHandler}>
+                          Return Package
                         </Button>
                       </div>
                     </ListGroup.Item>
                   )}
 
-                {/* {userInfo.isAgent == "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Received" && ( */}
-                {order.isPaid &&
+                {userInfo.isAdmin == "true" &&
+                  order.isPaid &&
                   order.isDispatched &&
-                  order.deliveryStatus == "Received" && (
+                  order.deliveryStatus == "Returned" && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
                       <div className="d-grid mt-4">
-                        <Button type="button" onClick={returnOrderHandler}>
-                          Return Package to Warehosue
+                        <Button variant="success" disabled>
+                          Package Returned
                         </Button>
                       </div>
                     </ListGroup.Item>
@@ -724,6 +783,22 @@ export default function ReservationScreen() {
                       <div className="d-grid mt-4">
                         <Button type="button" onClick={completeOrderHandler}>
                           Received Package
+                        </Button>
+                      </div>
+                    </ListGroup.Item>
+                  )}
+
+                {/* for customers */}
+                {/* {userInfo.isAdmin != "true" && userInfo.isAgent != "true" && order.isPaid && order.isDispatched && (order.deliveryStatus == "Received" || order.deliveryStatus == "Returned" || order.deliveryStatus == "Completed") && ( */}
+                {userInfo.isAdmin != "true" &&
+                  order.isPaid &&
+                  order.isDispatched &&
+                  order.deliveryStatus == "Completed" && (
+                    <ListGroup.Item>
+                      {loadingDeliver && <LoadingBox></LoadingBox>}
+                      <div className="d-grid mt-4">
+                        <Button variant="success" disabled>
+                          Order Completed
                         </Button>
                       </div>
                     </ListGroup.Item>

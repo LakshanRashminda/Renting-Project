@@ -58,7 +58,8 @@ const SignupScreen = () => {
             <Helmet>
                 <title>Sign Up</title>
             </Helmet>
-            <h1 className="my-3">Sign Up</h1>
+            <div className='text-center'><h1 className="my-3">Sign Up</h1></div>
+            
             <Form onSubmit={submitHandler}>
                 <Form.Group className='mb-3' controlId='name'>
                     <Form.Label>Name</Form.Label>
@@ -79,7 +80,7 @@ const SignupScreen = () => {
                     <Form.Label>Confirm Password</Form.Label>
                     <Form.Control type='Password' required onChange={(e) => setConfirmPassword(e.target.value)} />
                 </Form.Group>
-                <div className='mb-3'>
+                <div className='mb-3 text-center'>
                     <Button type='submit'>Sign Up</Button>
                 </div>
                 <div className='mb-3'>

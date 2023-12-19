@@ -297,7 +297,7 @@ const OrderListScreen = () => {
                             <td>
                                 <Button
                                     type="button"
-                                    variant="light"
+                                    variant="info"
                                     onClick={() => {
                                         navigate(`/order/${order._id}`);
                                     }}

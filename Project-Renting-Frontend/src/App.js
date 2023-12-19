@@ -51,6 +51,7 @@ import StaffListScreen from "./screens/StaffListScreen";
 import AgentViewOrderScreen from "./screens/AgentViewOrderScreen";
 import AgentViewReservationScreen from "./screens/AgentViewReservationScreen";
 import AgentNotificationScreen from "./screens/AgentNotificationScreen";
+import logo from "../src/image/logo.png"
 
 function App() {
   const { state, dispatch: ctxDispatch } = useContext(Store);
@@ -108,7 +109,7 @@ function App() {
               {(userInfo == null || userInfo.isAdmin === "false") && (
                 <LinkContainer to="/">
                   {/* <Navbar.Brand className="nav-brand">TreckPing </Navbar.Brand> */}
-                  <img src="https://o.remove.bg/downloads/93e0b1f9-87a9-4952-a150-9d654e658179/power-drill-tool-electric-equipment-vector-isolated-power-drill-tool-electric-equipment-vector-isolated-perfect-illustration-239564259-removebg-preview.png" alt="Logo" className="logo-image" />
+                  <img src={logo} alt="Logo" className="logo-image" />
                 </LinkContainer>
               )}
 
@@ -145,6 +146,7 @@ function App() {
                     >
                       <ToggleButton
                         id="tbg-radio-1"
+                        style={{ width: '100px' }} 
                         className={
                           localStorage.getItem("BuyOrRent") == "Buy"
                             ? "bg-success "
@@ -156,6 +158,7 @@ function App() {
                       </ToggleButton>
                       <ToggleButton
                         id="tbg-radio-2"
+                        style={{ width: '100px' }} 
                         className={
                           localStorage.getItem("BuyOrRent") == "Rent"
                             ? "bg-success"
@@ -171,7 +174,7 @@ function App() {
                   {/* {(userInfo == null || (userInfo.isAdmin === "false" && userInfo.isAgent === "false")) && */}
                   {(userInfo == null || userInfo.isAdmin === "false") && (
                     <Link className="nav-link mx-3" to="/all-products">
-                      Products
+                      {/* Products */}
                     </Link>
                   )}
 
@@ -181,7 +184,7 @@ function App() {
                       className="nav-link mx-2"
                       to="/signin?redirect=/suggestions"
                     >
-                      Need Help?
+                      {/* Need Help? */}
                     </Link>
                   )}
 
@@ -285,9 +288,9 @@ function App() {
                       <LinkContainer to="/admin/users">
                         <NavDropdown.Item>Users</NavDropdown.Item>
                       </LinkContainer>
-                      <LinkContainer to="/admin/pickuplocationslist">
+                      {/* <LinkContainer to="/admin/pickuplocationslist">
                         <NavDropdown.Item>Pickup Locations</NavDropdown.Item>
-                      </LinkContainer>
+                      </LinkContainer> */}
                       <LinkContainer to="/admin/staff">
                         <NavDropdown.Item>Staff</NavDropdown.Item>
                       </LinkContainer>
@@ -567,13 +570,13 @@ function App() {
             TP : +94 769584745
           </p>
 
-          <div class="text-center p-3 footer-container">
+          {/* <div class="text-center p-3 footer-container">
             © 2023 Copyright :
             <a class="text-white" href="http://localhost:3000/">
               {" "}
               TreckPing
             </a>
-          </div>
+          </div> */}
         </footer>
       </div>
     </BrowserRouter>
