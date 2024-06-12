@@ -1,7 +1,7 @@
-import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
-import axios from "axios";
-import moment from "moment";
-import React, { useContext, useEffect, useReducer, useState } from "react";
+import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
+import axios from 'axios';
+import moment from 'moment';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import {
   Badge,
   Button,
@@ -10,41 +10,41 @@ import {
   Form,
   ListGroup,
   Row,
-} from "react-bootstrap";
-import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
-import { useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
-import LoadingBox from "../components/LoadingBox";
-import MessageBox from "../components/MessageBox";
-import swal from "sweetalert";
-import { Store } from "../Store";
-import getError from "../utils";
+} from 'react-bootstrap';
+import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import LoadingBox from '../components/LoadingBox';
+import MessageBox from '../components/MessageBox';
+import swal from 'sweetalert';
+import { Store } from '../Store';
+import getError from '../utils';
 
 //reducer for handle states
 function reducer(state, action) {
   switch (action.type) {
-    case "FETCH_REQUEST":
-      return { ...state, loading: true, error: "" };
-    case "FETCH_SUCCESS":
-      return { ...state, loading: false, order: action.payload, error: "" };
-    case "FETCH_FAIL":
+    case 'FETCH_REQUEST':
+      return { ...state, loading: true, error: '' };
+    case 'FETCH_SUCCESS':
+      return { ...state, loading: false, order: action.payload, error: '' };
+    case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
-    case "PAY_REQUEST":
+    case 'PAY_REQUEST':
       return { ...state, loadingPay: true };
-    case "PAY_SUCCESS":
+    case 'PAY_SUCCESS':
       return { ...state, loadingPay: false, successPay: true };
-    case "PAY_FAIL":
+    case 'PAY_FAIL':
       return { ...state, loadingPay: false, errorPay: action.payload };
-    case "PAY_RESET":
+    case 'PAY_RESET':
       return { ...state, loadingPay: false, successPay: false };
-    case "DELIVER_REQUEST":
+    case 'DELIVER_REQUEST':
       return { ...state, loadingDeliver: true };
-    case "DELIVER_SUCCESS":
+    case 'DELIVER_SUCCESS':
       return { ...state, loadingDeliver: false, successDeliver: true };
-    case "DELIVER_FAIL":
+    case 'DELIVER_FAIL':
       return { ...state, loadingDeliver: false };
-    case "DELIVER_RESET":
+    case 'DELIVER_RESET':
       return {
         ...state,
         loadingDeliver: false,
@@ -63,7 +63,7 @@ export default function ReservationScreen() {
   const params = useParams();
   const { id: orderId } = params;
   const navigate = useNavigate();
-  const today = moment().format("YYYY-MM-DD");
+  const today = moment().format('YYYY-MM-DD');
 
   const [
     {
@@ -79,13 +79,14 @@ export default function ReservationScreen() {
   ] = useReducer(reducer, {
     loading: true,
     order: {},
-    error: "",
+    error: '',
     successPay: false,
     loadingPay: false,
   });
 
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
 
+  // Function to create an order using the PayPal API
   function createOrder(data, actions) {
     return actions.order
       .create({
@@ -103,7 +104,7 @@ export default function ReservationScreen() {
   function onApprove(data, actions) {
     return actions.order.capture().then(async function (details) {
       try {
-        dispatch({ type: "PAY_REQUEST" });
+        dispatch({ type: 'PAY_REQUEST' });
         //update reservation
         const { data } = await axios.put(
           `/api/reservations/${order._id}/pay`,
@@ -112,10 +113,10 @@ export default function ReservationScreen() {
             headers: { authorization: `Bearer ${userInfo.token}` },
           }
         );
-        dispatch({ type: "PAY_SUCCESS", payload: data });
-        toast.success("Order is paid");
+        dispatch({ type: 'PAY_SUCCESS', payload: data });
+        toast.success('Order is paid');
       } catch (err) {
-        dispatch({ type: "PAY_FAIL", payload: getError(err) });
+        dispatch({ type: 'PAY_FAIL', payload: getError(err) });
         toast.error(getError(err));
       }
     });
@@ -128,49 +129,50 @@ export default function ReservationScreen() {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        dispatch({ type: "FETCH_REQUEST" });
+        dispatch({ type: 'FETCH_REQUEST' });
         //get reservations by id
         const { data } = await axios.get(`/api/reservations/${orderId}`, {
           headers: { authorization: `Bearer ${userInfo.token}` },
         });
-        dispatch({ type: "FETCH_SUCCESS", payload: data });
+        dispatch({ type: 'FETCH_SUCCESS', payload: data });
       } catch (err) {
-        dispatch({ type: "FETCH_FAIL", payload: getError(err) });
+        dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
 
     if (!userInfo) {
-      return navigate("/login");
+      return navigate('/login');
     }
     if (
-      !order._id ||
-      successPay ||
-      successDeliver ||
-      (order._id && order._id !== orderId)
+      !order._id || //There is no order ID
+      successPay || //Payment was successful
+      successDeliver || //Delivery was successful
+      (order._id && order._id !== orderId) //The current order ID does not match the stored order ID
     ) {
       fetchOrder();
+      //if payment is success
       if (successPay) {
         //localStorage.removeItem('paymentMethod');
-        dispatch({ type: "PAY_RESET" });
+        dispatch({ type: 'PAY_RESET' });
       }
-
+      //if delivery success
       if (successDeliver) {
-        dispatch({ type: "DELIVER_RESET" });
+        dispatch({ type: 'DELIVER_RESET' });
       }
     } else {
       //load paypal data
       const loadPaypalScript = async () => {
-        const { data: clientId } = await axios.get("/api/keys/paypal", {
+        const { data: clientId } = await axios.get('/api/keys/paypal', {
           headers: { authorization: `Bearer ${userInfo.token}` },
         });
         paypalDispatch({
-          type: "resetOptions",
+          type: 'resetOptions',
           value: {
-            "client-id": clientId,
-            currency: "USD",
+            'client-id': clientId,
+            currency: 'USD',
           },
         });
-        paypalDispatch({ type: "setLoadingStatus", value: "pending" });
+        paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
       };
       loadPaypalScript();
     }
@@ -185,17 +187,18 @@ export default function ReservationScreen() {
   ]);
 
   //handle dispatched orders
+  //change the delivery status as dispatched
   async function dispatchOrderHandler() {
     swal({
-      title: "Are you sure?",
-      text: "Delivery status of this order will be changed as Dispatched !",
-      icon: "warning",
+      title: 'Are you sure?',
+      text: 'Delivery status of this order will be changed as Dispatched !',
+      icon: 'warning',
       buttons: true,
       dangerMode: true,
     }).then(async (willYes) => {
       if (willYes) {
         try {
-          dispatch({ type: "DELIVER_REQUEST" });
+          dispatch({ type: 'DELIVER_REQUEST' });
           //update reservation status to dispatched
           const { data } = await axios.put(
             `/api/reservations/${order._id}/dispatch`,
@@ -204,27 +207,28 @@ export default function ReservationScreen() {
               headers: { authorization: `Bearer ${userInfo.token}` },
             }
           );
-          dispatch({ type: "DELIVER_SUCCESS", payload: data });
-          toast.success("Order is dispatched");
+          dispatch({ type: 'DELIVER_SUCCESS', payload: data });
+          toast.success('Order is dispatched');
         } catch (err) {
           toast.error(getError(err));
-          dispatch({ type: "DELIVER_FAIL" });
+          dispatch({ type: 'DELIVER_FAIL' });
         }
       }
     });
   }
 
+  // change the delivery status as paid
   async function payOrderHandler() {
     swal({
-      title: "Are you sure?",
-      text: "Payment status of this order will be changed as Paid !",
-      icon: "warning",
+      title: 'Are you sure?',
+      text: 'Payment status of this order will be changed as Paid !',
+      icon: 'warning',
       buttons: true,
       dangerMode: true,
     }).then(async (willYes) => {
       if (willYes) {
         try {
-          dispatch({ type: "PAY_REQUEST" });
+          dispatch({ type: 'PAY_REQUEST' });
           const { data } = await axios.put(
             `/api/reservations/${order._id}/pay`,
             {},
@@ -232,10 +236,10 @@ export default function ReservationScreen() {
               headers: { authorization: `Bearer ${userInfo.token}` },
             }
           );
-          dispatch({ type: "PAY_SUCCESS", payload: data });
-          toast.success("Order is paid");
+          dispatch({ type: 'PAY_SUCCESS', payload: data });
+          toast.success('Order is paid');
         } catch (err) {
-          dispatch({ type: "PAY_FAIL", payload: getError(err) });
+          dispatch({ type: 'PAY_FAIL', payload: getError(err) });
           toast.error(getError(err));
         }
       }
@@ -243,17 +247,18 @@ export default function ReservationScreen() {
   }
 
   //handle delivered orders
+  // change the delivery status as delivered
   async function deliverOrderHandler() {
     swal({
-      title: "Are you sure?",
-      text: "Delivery status of this order will be changed as Delivered !",
-      icon: "warning",
+      title: 'Are you sure?',
+      text: 'Delivery status of this order will be changed as Delivered !',
+      icon: 'warning',
       buttons: true,
       dangerMode: true,
     }).then(async (willYes) => {
       if (willYes) {
         try {
-          dispatch({ type: "DELIVER_REQUEST" });
+          dispatch({ type: 'DELIVER_REQUEST' });
           //update reservation status to delivered
           const { data } = await axios.put(
             `/api/reservations/${order._id}/deliver`,
@@ -262,11 +267,11 @@ export default function ReservationScreen() {
               headers: { authorization: `Bearer ${userInfo.token}` },
             }
           );
-          dispatch({ type: "DELIVER_SUCCESS", payload: data });
-          toast.success("Order is delivered");
+          dispatch({ type: 'DELIVER_SUCCESS', payload: data });
+          toast.success('Order is delivered');
         } catch (err) {
           toast.error(getError(err));
-          dispatch({ type: "DELIVER_FAIL" });
+          dispatch({ type: 'DELIVER_FAIL' });
         }
       }
     });
@@ -275,15 +280,15 @@ export default function ReservationScreen() {
   //handle released orders
   async function releaseOrderHandler() {
     swal({
-      title: "Are you sure?",
-      text: "Delivery status of this order will be changed as Released !",
-      icon: "warning",
+      title: 'Are you sure?',
+      text: 'Delivery status of this order will be changed as Released !',
+      icon: 'warning',
       buttons: true,
       dangerMode: true,
     }).then(async (willYes) => {
       if (willYes) {
         try {
-          dispatch({ type: "DELIVER_REQUEST" });
+          dispatch({ type: 'DELIVER_REQUEST' });
           //update reservation status to released
           const { data } = await axios.put(
             `/api/reservations/${order._id}/release`,
@@ -292,11 +297,11 @@ export default function ReservationScreen() {
               headers: { authorization: `Bearer ${userInfo.token}` },
             }
           );
-          dispatch({ type: "DELIVER_SUCCESS", payload: data });
-          toast.success("Order is released");
+          dispatch({ type: 'DELIVER_SUCCESS', payload: data });
+          toast.success('Order is released');
         } catch (err) {
           toast.error(getError(err));
-          dispatch({ type: "DELIVER_FAIL" });
+          dispatch({ type: 'DELIVER_FAIL' });
         }
       }
     });
@@ -305,15 +310,15 @@ export default function ReservationScreen() {
   //handle received orders
   async function receiveOrderHandler() {
     swal({
-      title: "Are you sure?",
-      text: "Delivery status of this order will be changed as Received !",
-      icon: "warning",
+      title: 'Are you sure?',
+      text: 'Delivery status of this order will be changed as Received !',
+      icon: 'warning',
       buttons: true,
       dangerMode: true,
     }).then(async (willYes) => {
       if (willYes) {
         try {
-          dispatch({ type: "DELIVER_REQUEST" });
+          dispatch({ type: 'DELIVER_REQUEST' });
           //update reservation status to received
           const { data } = await axios.put(
             `/api/reservations/${order._id}/receive`,
@@ -322,28 +327,29 @@ export default function ReservationScreen() {
               headers: { authorization: `Bearer ${userInfo.token}` },
             }
           );
-          dispatch({ type: "DELIVER_SUCCESS", payload: data });
-          toast.success("Order is received");
+          dispatch({ type: 'DELIVER_SUCCESS', payload: data });
+          toast.success('Order is received');
         } catch (err) {
           toast.error(getError(err));
-          dispatch({ type: "DELIVER_FAIL" });
+          dispatch({ type: 'DELIVER_FAIL' });
         }
       }
     });
   }
 
   //handle returned orders
+  //change the status as retured
   async function returnOrderHandler() {
     swal({
-      title: "Are you sure?",
-      text: "Delivery status of this order will be changed as Returned !",
-      icon: "warning",
+      title: 'Are you sure?',
+      text: 'Delivery status of this order will be changed as Returned !',
+      icon: 'warning',
       buttons: true,
       dangerMode: true,
     }).then(async (willYes) => {
       if (willYes) {
         try {
-          dispatch({ type: "DELIVER_REQUEST" });
+          dispatch({ type: 'DELIVER_REQUEST' });
           //update reservation status to returned
           const { data } = await axios.put(
             `/api/reservations/${order._id}/return`,
@@ -352,28 +358,29 @@ export default function ReservationScreen() {
               headers: { authorization: `Bearer ${userInfo.token}` },
             }
           );
-          dispatch({ type: "DELIVER_SUCCESS", payload: data });
-          toast.success("Order is returned");
+          dispatch({ type: 'DELIVER_SUCCESS', payload: data });
+          toast.success('Order is returned');
         } catch (err) {
           toast.error(getError(err));
-          dispatch({ type: "DELIVER_FAIL" });
+          dispatch({ type: 'DELIVER_FAIL' });
         }
       }
     });
   }
 
   //handle completed orders
+  //change the status as completed
   async function completeOrderHandler() {
     swal({
-      title: "Are you sure?",
-      text: "Delivery status of this order will be changed as Completed !",
-      icon: "warning",
+      title: 'Are you sure?',
+      text: 'Delivery status of this order will be changed as Completed !',
+      icon: 'warning',
       buttons: true,
       dangerMode: true,
     }).then(async (willYes) => {
       if (willYes) {
         try {
-          dispatch({ type: "DELIVER_REQUEST" });
+          dispatch({ type: 'DELIVER_REQUEST' });
           //update reservation status to completed
           const { data } = await axios.put(
             `/api/reservations/${order._id}/complete`,
@@ -382,11 +389,11 @@ export default function ReservationScreen() {
               headers: { authorization: `Bearer ${userInfo.token}` },
             }
           );
-          dispatch({ type: "DELIVER_SUCCESS", payload: data });
-          toast.success("Order is completed");
+          dispatch({ type: 'DELIVER_SUCCESS', payload: data });
+          toast.success('Order is completed');
         } catch (err) {
           toast.error(getError(err));
-          dispatch({ type: "DELIVER_FAIL" });
+          dispatch({ type: 'DELIVER_FAIL' });
         }
       }
     });
@@ -409,43 +416,43 @@ export default function ReservationScreen() {
               <Card.Title>Shipping</Card.Title>
               <Card.Text>
                 {/* todo */}
-                <strong>Customer Name : </strong>{" "}
+                <strong>Customer Name : </strong>{' '}
                 {/* {order.shippingAddress.customerName} */}
                 {order.shippingAddress.fullName}
                 <br />
                 {/* <strong>Pickup Location : </strong>{" "}
                 {order.shippingAddress.pickupLocation} <br /> */}
-                <strong>Return Type : </strong>{" "}
+                <strong>Return Type : </strong>{' '}
                 {order.shippingAddress.returnOption} <br />
                 {/* <strong>Return Location : </strong>{" "}
                 {order.shippingAddress.returnLocation},{" "}
                 {order.shippingAddress.city}, {order.shippingAddress.postalCode} */}
-                <strong>Shipping Address : </strong>{" "}
-                {order.shippingAddress.address}, {order.shippingAddress.city},{" "}
+                <strong>Shipping Address : </strong>{' '}
+                {order.shippingAddress.address}, {order.shippingAddress.city},{' '}
                 {order.shippingAddress.postalCode}
               </Card.Text>
-              {order.isDispatched ? (
+              {order.isDispatched ? ( //check the order is dispatched
                 <MessageBox variant="success">
-                  {order.deliveryStatus != "Received" &&
-                  order.deliveryStatus != "Returned" &&
-                  order.deliveryStatus != "Completed"
+                  {order.deliveryStatus != 'Received' &&
+                  order.deliveryStatus != 'Returned' &&
+                  order.deliveryStatus != 'Completed'
                     ? order.deliveryStatus
-                    : "Completed"}{" "}
-                  at{" "}
+                    : 'Completed'}{' '}
+                  at{' '}
                   {moment(
-                    order.deliveryStatus == "Dispatched"
+                    order.deliveryStatus == 'Dispatched'
                       ? order.dispatchedAt
-                      : order.deliveryStatus == "Delivered"
+                      : order.deliveryStatus == 'Delivered'
                       ? order.deliveredAt
-                      : order.deliveryStatus == "Released"
+                      : order.deliveryStatus == 'Released'
                       ? order.releasedAt
-                      : order.deliveryStatus == "Received"
+                      : order.deliveryStatus == 'Received'
                       ? order.receivedAt
                       : order.receivedAt
-                  ).format("LLL")}
+                  ).format('LLL')}
                 </MessageBox>
               ) : (
-                <MessageBox variant="danger">tched</MessageBox>
+                <MessageBox variant="danger">dispatched</MessageBox>
               )}
             </Card.Body>
           </Card>
@@ -459,7 +466,7 @@ export default function ReservationScreen() {
               {order.isPaid ? (
                 <div>
                   <MessageBox variant="success">
-                    Paid at {moment(order.paidAt).format("LLL")}
+                    Paid at {moment(order.paidAt).format('LLL')}
                   </MessageBox>
                 </div>
               ) : (
@@ -480,7 +487,7 @@ export default function ReservationScreen() {
                           src={item.image}
                           alt={item.name}
                           className="img-fluid rounded img-thumbnail"
-                        ></img>{" "}
+                        ></img>{' '}
                       </Col>
                       <Col md={10}>
                         <Row>
@@ -501,35 +508,35 @@ export default function ReservationScreen() {
                         <Row>
                           <Col md={4}>
                             <Form.Label>
-                              {" "}
+                              {' '}
                               <strong>From : </strong>
                             </Form.Label>
                             <strong>
-                              {" "}
+                              {' '}
                               {moment(item.pickupDate)
                                 .utc()
-                                .format("DD/MM/YYYY")}{" "}
+                                .format('DD/MM/YYYY')}{' '}
                             </strong>
                           </Col>
                           <Col md={4}>
                             <Form.Label>
-                              {" "}
+                              {' '}
                               <strong>To : </strong>
                             </Form.Label>
                             <strong>
-                              {" "}
+                              {' '}
                               {moment(item.returnDate)
                                 .utc()
-                                .format("DD/MM/YYYY")}{" "}
+                                .format('DD/MM/YYYY')}{' '}
                             </strong>
                           </Col>
                           <Col md={2}>
-                            {order.deliveryStatus == "Released" &&
-                            moment(item.returnDate).diff(today, "days") < 0 ? (
+                            {order.deliveryStatus == 'Released' &&
+                            moment(item.returnDate).diff(today, 'days') < 0 ? (
                               <Badge bg="warning" text="dark">
                                 +
-                                {moment(today).diff(item.returnDate, "days") *
-                                  item.penalty}{" "}
+                                {moment(today).diff(item.returnDate, 'days') *
+                                  item.penalty}{' '}
                                 Penalty
                               </Badge>
                             ) : (
@@ -573,13 +580,14 @@ export default function ReservationScreen() {
                     </Col>
                   </Row>
                 </ListGroup.Item>
-                {userInfo.isAdmin == "false" && !order.isPaid && (
+                {/* //user is not a admin and doesn't pay */}
+                {userInfo.isAdmin == 'false' && !order.isPaid && (
                   <ListGroup.Item>
                     {isPending ? (
                       <LoadingBox />
                     ) : (
                       <div>
-                        {order.paymentMethod == "Visa" && (
+                        {order.paymentMethod == 'Visa' && (
                           <PayPalButtons
                             createOrder={createOrder}
                             onApprove={onApprove}
@@ -591,7 +599,8 @@ export default function ReservationScreen() {
                     {loadingPay && <LoadingBox></LoadingBox>}
                   </ListGroup.Item>
                 )}
-                {userInfo.isAdmin == "true" && !order.isDispatched && (
+                {/* //if order does't dispatched */}
+                {userInfo.isAdmin == 'true' && !order.isDispatched && (
                   <ListGroup.Item>
                     {loadingDeliver && <LoadingBox></LoadingBox>}
                     <div className="d-grid mt-4">
@@ -601,8 +610,8 @@ export default function ReservationScreen() {
                     </div>
                   </ListGroup.Item>
                 )}
-
-                {userInfo.isAdmin == "true" &&
+                {/* //if order doesn't paid */}
+                {userInfo.isAdmin == 'true' &&
                   order.isDispatched &&
                   !order.isPaid && (
                     <ListGroup.Item>
@@ -615,11 +624,10 @@ export default function ReservationScreen() {
                     </ListGroup.Item>
                   )}
 
-                {/* for customers */}
-                {/* {userInfo.isAdmin != "true" && userInfo.isAgent != "true" && order.isPaid && order.deliveryStatus == "Preparing" && ( */}
-                {userInfo.isAdmin != "true" &&
+                {/* for customers  order preparing status*/}
+                {userInfo.isAdmin != 'true' &&
                   order.isPaid &&
-                  order.deliveryStatus == "Preparing" && (
+                  order.deliveryStatus == 'Preparing' && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
                       <div className="d-grid mt-4">
@@ -630,12 +638,11 @@ export default function ReservationScreen() {
                     </ListGroup.Item>
                   )}
 
-                {/* for customers */}
-                {/* {userInfo.isAdmin != "true" && userInfo.isAgent != "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Dispatched" && ( */}
-                {userInfo.isAdmin != "true" &&
+                {/* for customers  order dispatched status*/}
+                {userInfo.isAdmin != 'true' &&
                   order.isPaid &&
                   order.isDispatched &&
-                  order.deliveryStatus == "Dispatched" && (
+                  order.deliveryStatus == 'Dispatched' && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
                       <div className="d-grid mt-4">
@@ -645,13 +652,27 @@ export default function ReservationScreen() {
                       </div>
                     </ListGroup.Item>
                   )}
-
-                {/* {userInfo.isAgent == "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Dispatched" && ( */}
-                {userInfo.isAdmin != "true" &&
+                {/* //for customers order delived disabled status for cash on delivery */}
+                {userInfo.isAdmin != 'true' &&
                   order.isPaid &&
                   order.isDispatched &&
-                  order.paymentMethod == "COD" &&
-                  order.deliveryStatus == "Dispatched" && (
+                  order.paymentMethod == 'COD' &&
+                  order.deliveryStatus == 'Dispatched' && (
+                    <ListGroup.Item>
+                      {loadingDeliver && <LoadingBox></LoadingBox>}
+                      <div className="d-grid mt-4">
+                        <Button type="button" onClick={deliverOrderHandler}>
+                          Order Delivered
+                        </Button>
+                      </div>
+                    </ListGroup.Item>
+                  )}
+                {/* // for customers, order delivered disabled status for visa */}
+                {userInfo.isAdmin == 'true' &&
+                  order.isPaid &&
+                  order.isDispatched &&
+                  order.paymentMethod == 'Visa' &&
+                  order.deliveryStatus == 'Dispatched' && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
                       <div className="d-grid mt-4">
@@ -662,94 +683,11 @@ export default function ReservationScreen() {
                     </ListGroup.Item>
                   )}
 
-                {userInfo.isAdmin == "true" &&
+                {/* // for customers, return package status */}
+                {userInfo.isAdmin != 'true' &&
                   order.isPaid &&
                   order.isDispatched &&
-                  order.paymentMethod == "Visa" &&
-                  order.deliveryStatus == "Dispatched" && (
-                    <ListGroup.Item>
-                      {loadingDeliver && <LoadingBox></LoadingBox>}
-                      <div className="d-grid mt-4">
-                        <Button type="button" onClick={deliverOrderHandler}>
-                          Order Delivered
-                        </Button>
-                      </div>
-                    </ListGroup.Item>
-                  )}
-
-                {/* for customers */}
-                {/* {userInfo.isAdmin != "true" && userInfo.isAgent != "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Delivered" && ( */}
-                {/* {userInfo.isAdmin != "true" &&
-                  order.isPaid &&
-                  order.isDispatched &&
-                  order.deliveryStatus == "Delivered" && (
-                    <ListGroup.Item>
-                      {loadingDeliver && <LoadingBox></LoadingBox>}
-                      <div className="d-grid mt-4">
-                        <Button variant="danger" disabled>
-                          Package Received to Agent
-                        </Button>
-                      </div>
-                    </ListGroup.Item>
-                  )} */}
-
-                {/* {userInfo.isAgent == "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Delivered" && ( */}
-                {/* {order.isPaid &&
-                  order.isDispatched &&
-                  order.deliveryStatus == "Delivered" && (
-                    <ListGroup.Item>
-                      {loadingDeliver && <LoadingBox></LoadingBox>}
-                      <div className="d-grid mt-4">
-                        <Button
-                          type="button"
-                          variant="danger"
-                          onClick={releaseOrderHandler}
-                        >
-                          Release To the Customer
-                        </Button>
-                      </div>
-                    </ListGroup.Item>
-                  )} */}
-
-                {/* for customers */}
-                {/* {userInfo.isAdmin != "true" && userInfo.isAgent != "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Released" && ( */}
-                {/* {userInfo.isAdmin != "true" &&
-                  order.isPaid &&
-                  order.isDispatched &&
-                  order.deliveryStatus == "Released" && (
-                    <ListGroup.Item>
-                      {loadingDeliver && <LoadingBox></LoadingBox>}
-                      <div className="d-grid mt-4">
-                        <Button variant="danger" disabled>
-                          Pickedup the Package
-                        </Button>
-                      </div>
-                    </ListGroup.Item>
-                  )} */}
-
-                {/* {userInfo.isAgent == "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Released" && ( */}
-                {/* {order.isPaid &&
-                  order.isDispatched &&
-                  order.deliveryStatus == "Released" && (
-                    <ListGroup.Item>
-                      {loadingDeliver && <LoadingBox></LoadingBox>}
-                      <div className="d-grid mt-4">
-                        <Button
-                          type="button"
-                          variant="danger"
-                          onClick={receiveOrderHandler}
-                        >
-                          Received the Package
-                        </Button>
-                      </div>
-                    </ListGroup.Item>
-                  )} */}
-
-                {/* {userInfo.isAgent == "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Received" && ( */}
-                {userInfo.isAdmin != "true" &&
-                  order.isPaid &&
-                  order.isDispatched &&
-                  order.deliveryStatus == "Delivered" && (
+                  order.deliveryStatus == 'Delivered' && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
                       <div className="d-grid mt-4">
@@ -759,11 +697,11 @@ export default function ReservationScreen() {
                       </div>
                     </ListGroup.Item>
                   )}
-
-                {userInfo.isAdmin == "true" &&
+                {/* for admin, package retured disabled status */}
+                {userInfo.isAdmin == 'true' &&
                   order.isPaid &&
                   order.isDispatched &&
-                  order.deliveryStatus == "Returned" && (
+                  order.deliveryStatus == 'Returned' && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
                       <div className="d-grid mt-4">
@@ -773,11 +711,11 @@ export default function ReservationScreen() {
                       </div>
                     </ListGroup.Item>
                   )}
-
-                {userInfo.isAdmin == "true" &&
+                {/* for admin received package status button */}
+                {userInfo.isAdmin == 'true' &&
                   order.isPaid &&
                   order.isDispatched &&
-                  order.deliveryStatus == "Returned" && (
+                  order.deliveryStatus == 'Returned' && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
                       <div className="d-grid mt-4">
@@ -788,12 +726,11 @@ export default function ReservationScreen() {
                     </ListGroup.Item>
                   )}
 
-                {/* for customers */}
-                {/* {userInfo.isAdmin != "true" && userInfo.isAgent != "true" && order.isPaid && order.isDispatched && (order.deliveryStatus == "Received" || order.deliveryStatus == "Returned" || order.deliveryStatus == "Completed") && ( */}
-                {userInfo.isAdmin != "true" &&
+                {/* for customers, order completed disabled status */}
+                {userInfo.isAdmin != 'true' &&
                   order.isPaid &&
                   order.isDispatched &&
-                  order.deliveryStatus == "Completed" && (
+                  order.deliveryStatus == 'Completed' && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
                       <div className="d-grid mt-4">
@@ -803,12 +740,11 @@ export default function ReservationScreen() {
                       </div>
                     </ListGroup.Item>
                   )}
-
-                {/* {(userInfo.isAdmin == "true" || userInfo.isAgent == "true") && order.isPaid && order.isDispatched && order.deliveryStatus == "Completed" && ( */}
-                {userInfo.isAdmin == "true" &&
+                {/* for admin, order completed disabled status */}
+                {userInfo.isAdmin == 'true' &&
                   order.isPaid &&
                   order.isDispatched &&
-                  order.deliveryStatus == "Completed" && (
+                  order.deliveryStatus == 'Completed' && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
                       <div className="d-grid mt-4">

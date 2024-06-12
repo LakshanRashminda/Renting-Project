@@ -25,7 +25,7 @@ const PaymentMethodScreen = () => {
   //set payment method in local storage
   const submitHandler = (e) => {
     e.preventDefault();
-    ctxDispatch({ type: "SAVE_PAYMENT_METHOD", payload: paymentMethodName });
+    ctxDispatch({ type: "SAVE_PAYMENT_METHOD", payload: paymentMethodName }); // Dispatch an action to save the selected payment method to the context state
     localStorage.setItem("paymentMethod", paymentMethodName);
     navigate("/placeorder");
   };

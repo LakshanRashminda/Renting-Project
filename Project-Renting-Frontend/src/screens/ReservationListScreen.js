@@ -60,8 +60,8 @@ const ReservationListScreen = () => {
         });
 
     useEffect(() => {
-        fetchData();
-        fetchDataSummary();
+        fetchData(); //get all reservations
+        fetchDataSummary(); //get reservation summary
     }, [userInfo]);
 
     const fetchData = async () => {
@@ -116,7 +116,7 @@ const ReservationListScreen = () => {
             });
         }
     };
-
+    //data filter according to the date range
     const fetchDataFilter = async () => {
         try {
             dispatch({ type: 'FETCH_REQUEST' });
@@ -149,6 +149,7 @@ const ReservationListScreen = () => {
             <Col md={5} className="mt-4 mb-2"><h2 >Reservations</h2></Col>
             <Col md={2} className="mb-3">
                 <Form.Label >From :</Form.Label>
+                {/* // Check if the endDate is greater than the selected startDate.If true, keep the current endDate.If false, update the endDate with the selected date */}
                 <Form.Control type="date" name="startingDate" placeholder="DateRange" onChange={(e) => { setStartDate(e.target.value); moment(endDate).diff(startDate, 'days') > 0 ? setEndDate(endDate) : setEndDate(e.target.value) }}></Form.Control>
             </Col>
             <Col md={2} className="mb-3">

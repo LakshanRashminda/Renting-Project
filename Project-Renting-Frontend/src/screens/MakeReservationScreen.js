@@ -1,23 +1,23 @@
-import Axios from "axios";
-import moment from "moment";
-import React, { useContext, useEffect, useReducer } from "react";
-import { Button, Card, Col, Form, ListGroup, Row } from "react-bootstrap";
-import { Helmet } from "react-helmet-async";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import CheckoutSteps from "../components/CheckoutSteps";
-import LoadingBox from "../components/LoadingBox";
-import { Store } from "../Store";
-import getError from "../utils";
+import Axios from 'axios';
+import moment from 'moment';
+import React, { useContext, useEffect, useReducer } from 'react';
+import { Button, Card, Col, Form, ListGroup, Row } from 'react-bootstrap';
+import { Helmet } from 'react-helmet-async';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import CheckoutSteps from '../components/CheckoutSteps';
+import LoadingBox from '../components/LoadingBox';
+import { Store } from '../Store';
+import getError from '../utils';
 
 //reducer for handle states
 const reducer = (state, action) => {
   switch (action.type) {
-    case "CREATE_REQUEST":
+    case 'CREATE_REQUEST':
       return { ...state, loading: false };
-    case "CREATE_SUCCESS":
+    case 'CREATE_SUCCESS':
       return { ...state, loading: true };
-    case "CREATE_FAIL":
+    case 'CREATE_FAIL':
       return { ...state, loading: false };
     default:
       return state;
@@ -32,27 +32,28 @@ const MakeReservationScreen = () => {
   });
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { rentCart, userInfo } = state;
+  // Calculate the 'itemsPrice' of the 'rentCart' object
   rentCart.itemsPrice = rentCart.rentCartItems.reduce(
     (a, c) =>
       a +
       c.rent *
         c.quantity *
-        (moment(c.returnDate).diff(c.pickupDate, "days") != 0
-          ? moment(c.returnDate).diff(c.pickupDate, "days")
+        (moment(c.returnDate).diff(c.pickupDate, 'days') != 0
+          ? moment(c.returnDate).diff(c.pickupDate, 'days')
           : 1),
     0
   );
   rentCart.shippingPrice =
-    rentCart.itemsPrice > 62500 ? 5000 : (rentCart.itemsPrice * 8) / 100;
+    rentCart.itemsPrice > 62500 ? 5000 : (rentCart.itemsPrice * 8) / 100; //If the itemsPrice is greater than 62500, the shipping price is set to a fixed value of 5000.
   rentCart.totalPrice = rentCart.itemsPrice + rentCart.shippingPrice;
 
   //Handle reservations
   const placeOrderHandler = async () => {
     try {
-      dispatch({ type: "CREATE_REQUEST" });
+      dispatch({ type: 'CREATE_REQUEST' });
       //get all reservations
       const { data } = await Axios.post(
-        "/api/reservations",
+        '/api/reservations',
         {
           orderItems: rentCart.rentCartItems,
           shippingAddress: rentCart.deliveryAddress,
@@ -64,23 +65,24 @@ const MakeReservationScreen = () => {
         },
         {
           headers: {
-            authorization: `Bearer ${userInfo.token}`,
+            authorization: `Bearer ${userInfo.token}`, //user's authorization token
           },
         }
       );
-      ctxDispatch({ type: "RENT_CART_CLEAR" });
-      dispatch({ type: "CREATE_SUCCESS" });
-      localStorage.removeItem("rentCartItems");
+      ctxDispatch({ type: 'RENT_CART_CLEAR' });
+      dispatch({ type: 'CREATE_SUCCESS' });
+      localStorage.removeItem('rentCartItems');
       navigate(`/reservation/${data.reservation._id}`);
     } catch (err) {
-      dispatch({ type: "CREATE_FAIL" });
+      dispatch({ type: 'CREATE_FAIL' });
       toast.error(getError(err));
     }
   };
 
   useEffect(() => {
     if (!rentCart.paymentMethod) {
-      navigate("/rentpayment");
+      // Check if payment method is not set in the rentCart
+      navigate('/rentpayment');
     }
   }, [rentCart, navigate]);
 
@@ -99,9 +101,9 @@ const MakeReservationScreen = () => {
               <Card.Text>
                 {/* <strong>Pickup Location:</strong> {rentCart.deliveryAddress.pickupLocation} <br />
                                 <strong>Return Location:</strong> {rentCart.deliveryAddress.returnLocation}, */}
-                <strong>Shipping Address:</strong>{" "}
+                <strong>Shipping Address:</strong>{' '}
                 {rentCart.deliveryAddress.address} <br />
-                <strong>Return Type:</strong>{" "}
+                <strong>Return Type:</strong>{' '}
                 {rentCart.deliveryAddress.returnOption}
               </Card.Text>
               <Link to="/pickuplocation">
@@ -133,7 +135,7 @@ const MakeReservationScreen = () => {
                           src={item.image}
                           alt={item.name}
                           className="img-fluid rounded img-thumbnail"
-                        ></img>{" "}
+                        ></img>{' '}
                       </Col>
                       <Col md={10}>
                         <Row>
@@ -148,23 +150,23 @@ const MakeReservationScreen = () => {
                           <Col md={2}>
                             <span>{item.quantity}</span>
                           </Col>
-                          <Col md={2}>{item.price}</Col>
+                          <Col md={2}>{item.rent}</Col>
                         </Row>
                         <br />
                         <Row>
                           <Col md={5}>
                             <Form.Label>
-                              {" "}
+                              {' '}
                               <strong>From : </strong>
-                            </Form.Label>{" "}
-                            {moment(item.pickupDate).utc().format("DD/MM/YYYY")}
+                            </Form.Label>{' '}
+                            {moment(item.pickupDate).utc().format('DD/MM/YYYY')}
                           </Col>
                           <Col md={5}>
                             <Form.Label>
-                              {" "}
+                              {' '}
                               <strong>To : </strong>
-                            </Form.Label>{" "}
-                            {moment(item.returnDate).utc().format("DD/MM/YYYY")}
+                            </Form.Label>{' '}
+                            {moment(item.returnDate).utc().format('DD/MM/YYYY')}
                           </Col>
                         </Row>
                       </Col>
@@ -192,9 +194,9 @@ const MakeReservationScreen = () => {
                     <Col>Shipping</Col>
                     <Col>
                       {rentCart.deliveryAddress.returnOption ===
-                      "Deliver to shop"
+                      'Deliver to shop'
                         ? (rentCart.shippingPrice * 2).toFixed(2)
-                        : rentCart.shippingPrice.toFixed(2)}{" "}
+                        : rentCart.shippingPrice.toFixed(2)}{' '}
                       LKR
                     </Col>
                   </Row>

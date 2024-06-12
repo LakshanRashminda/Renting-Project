@@ -42,7 +42,7 @@ const StaffListScreen = () => {
     const fetchData = async () => {
       try {
         dispatch({ type: "FETCH_REQUEST" });
-        //get all staff
+        //get all staff/admins
         const { data } = await axios.get(`/api/users/staff/get-all-staff`, {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
@@ -77,7 +77,6 @@ const StaffListScreen = () => {
               <th>NAME</th>
               <th>EMAIL</th>
               <th>IS ADMIN</th>
-              {/* <th>IS AGENT</th> */}
               <th>ACTIONS</th>
             </tr>
           </thead>
@@ -88,7 +87,6 @@ const StaffListScreen = () => {
                 <td>{user.name}</td>
                 <td>{user.email}</td>
                 <td>{user.isAdmin === "true" ? "YES" : "NO"}</td>
-                {/* <td>{user.isAgent === 'true' ? 'YES' : 'NO'}</td> */}
                 <td>
                   <Button
                     type="button"

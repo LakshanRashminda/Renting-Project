@@ -128,8 +128,9 @@ const SearchScreen = () => {
         const filterCategory = filter.category || category;
         const filterQuery = filter.query || query;
         const filterRating = filter.rating || rating;
-        const filterPrice = filter.price || price;
+        const filterPrice = filter.price || price; // Selected price range or default price range
         const sortOrder = filter.order || order;
+        // Constructing the filtered URL with query parameters
         return `/search?category=${filterCategory}&query=${filterQuery}&price=${filterPrice}&rating=${filterRating}&order=${sortOrder}&page=${filterPage}`;
     }
 
@@ -142,6 +143,7 @@ const SearchScreen = () => {
                 <div>
                     <ul>
                         <li>
+                            {/* get all category */}
                             <Link className={'all' === category ? 'text-bold filter-link' : 'filter-link'} to={getFilterUrl({ category: 'all' })}>Any</Link>
                         </li>
                         {categories.map((c) => (
@@ -162,6 +164,7 @@ const SearchScreen = () => {
                         <li>
                             <Link className={'all' === price ? 'text-bold filter-link' : 'filter-link'} to={getFilterUrl({ price: 'all' })}>Any</Link>
                         </li>
+                        {/* //filter the values according to price range */}
                         {prices.map((p) => (
                             <li key={p.value}>
                                 <Link className={p.value === price ? 'text-bold filter-link' : 'filter-link'} to={getFilterUrl({ price: p.value })}>

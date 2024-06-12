@@ -1,14 +1,14 @@
-import express from "express";
-import bcrypt from "bcryptjs";
-import expressAsyncHandler from "express-async-handler";
-import User from "../models/userModel.js";
-import { generateToken, isAdmin, isAuth } from "../utils.js";
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import expressAsyncHandler from 'express-async-handler';
+import User from '../models/userModel.js';
+import { generateToken, isAdmin, isAuth } from '../utils.js';
 
 const userRouter = express.Router();
 
 //get all users router
 userRouter.get(
-  "/",
+  '/',
   isAuth,
   isAdmin,
   expressAsyncHandler(async (req, res) => {
@@ -19,7 +19,7 @@ userRouter.get(
 
 //get user by id router
 userRouter.get(
-  "/:id",
+  '/:id',
   isAuth,
   isAdmin,
   expressAsyncHandler(async (req, res) => {
@@ -27,14 +27,14 @@ userRouter.get(
     if (user) {
       res.send(user);
     } else {
-      res.status(404).send({ message: "User Not Found" });
+      res.status(404).send({ message: 'User Not Found' });
     }
   })
 );
 
 //update user type by id router
 userRouter.put(
-  "/:id",
+  '/:id',
   isAuth,
   isAdmin,
   expressAsyncHandler(async (req, res) => {
@@ -43,18 +43,17 @@ userRouter.put(
       user.name = req.body.name || user.name;
       user.email = req.body.email || user.email;
       user.isAdmin = Boolean(req.body.isAdmin);
-      //user.isAgent = Boolean(req.body.isAgent);
       const updatedUser = await user.save();
-      res.send({ message: "User Updated", user: updatedUser });
+      res.send({ message: 'User Updated', user: updatedUser });
     } else {
-      res.status(404).send({ message: "User Not Found" });
+      res.status(404).send({ message: 'User Not Found' });
     }
   })
 );
 
 //user login router (sigin)
 userRouter.post(
-  "/signin",
+  '/signin',
   expressAsyncHandler(async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
     if (user) {
@@ -64,19 +63,18 @@ userRouter.post(
           name: user.name,
           email: user.email,
           isAdmin: user.isAdmin,
-          //isAgent: user.isAgent,
           token: generateToken(user),
         });
         return;
       }
     }
-    res.status(401).send({ message: "Invalid email or pw" });
+    res.status(401).send({ message: 'Invalid email or pw' });
   })
 );
 
 //create new user router (signup)
 userRouter.post(
-  "/signup",
+  '/signup',
   expressAsyncHandler(async (req, res) => {
     const newUser = new User({
       name: req.body.name,
@@ -89,7 +87,6 @@ userRouter.post(
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
-      //isAgent: user.isAgent,
       token: generateToken(user),
     });
   })
@@ -97,7 +94,7 @@ userRouter.post(
 
 //update user profile by id router
 userRouter.put(
-  "/profile/edit",
+  '/profile/edit',
   isAuth,
   expressAsyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
@@ -117,30 +114,18 @@ userRouter.put(
         token: generateToken(updatedUser),
       });
     } else {
-      res.status(404).send({ message: "User not found" });
+      res.status(404).send({ message: 'User not found' });
     }
   })
 );
 
-////get all agents router
-// userRouter.get(
-//     "/agents/get-all-agents",
-//     isAuth,
-//     isAdmin,
-//     expressAsyncHandler(async (req, res) => {
-//         const users = await User.find({ isAgent: true });
-//         res.send(users);
-//     })
-// );
-
 //get all staff router
 userRouter.get(
-  "/staff/get-all-staff",
+  '/staff/get-all-staff',
   isAuth,
   isAdmin,
   expressAsyncHandler(async (req, res) => {
-    //const users = await User.find(({ $or: [{ isAdmin: true }, { isAgent: true }] }));
-    const users = await User.find({ $or: [{ isAdmin: true }] });
+    const users = await User.find({ $or: [{ isAdmin: true }] }); // Retrieve all users with admin privileges (staff members)
     res.send(users);
   })
 );

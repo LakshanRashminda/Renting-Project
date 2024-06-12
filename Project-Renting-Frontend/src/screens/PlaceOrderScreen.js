@@ -38,7 +38,8 @@ const PlaceOrderScreen = () => {
     cart.itemsPrice = cart.cartItems.reduce((a, c) => a + c.quantity * c.price, 0);
     cart.shippingPrice = cart.itemsPrice > 62500 ? 5000 : cart.itemsPrice * 8 / 100;
     cart.totalPrice = cart.itemsPrice + cart.shippingPrice;
-
+ 
+        //create order and save it
     const placeOrderHandler = async () => {
         try {
             dispatch({ type: 'CREATE_REQUEST' });
@@ -116,7 +117,7 @@ const PlaceOrderScreen = () => {
                                                 <Link to={`/product/${item.slug}`} className='card-title-link'>{item.name}</Link>
                                             </Col>
                                             <Col md={2}><span>{item.quantity}</span></Col>
-                                            <Col md={2}>{item.price}</Col>
+                                            <Col md={2}>{item.price*item.quantity}</Col>
                                         </Row>
                                     </ListGroup.Item>
                                 ))}

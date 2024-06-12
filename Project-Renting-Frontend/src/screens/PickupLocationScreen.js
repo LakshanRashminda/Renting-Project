@@ -117,7 +117,7 @@ const PickupLocationScreen = () => {
         <Form>
           <Form.Label>
             <strong>
-              You can pickup gears through our sales agents in your area. Or we
+              You can pickup from the shop Or we
               can deliver them to your doorstep.
             </strong>{" "}
             <br />
@@ -137,7 +137,7 @@ const PickupLocationScreen = () => {
           <Form.Check
             className="mb-3 radio-checked h6"
             type="radio"
-            label="Pickup from Pickup Point"
+            label="Pickup from shop"
             name="adress"
             checked={isPickup}
             onChange={(e) => setIsPickup(!isPickup)}

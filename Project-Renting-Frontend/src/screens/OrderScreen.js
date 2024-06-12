@@ -1,42 +1,42 @@
-import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
-import axios from "axios";
-import moment from "moment";
-import React, { useContext, useEffect, useReducer } from "react";
-import { Button, Card, Col, ListGroup, Row } from "react-bootstrap";
-import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
-import { useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
-import LoadingBox from "../components/LoadingBox";
-import MessageBox from "../components/MessageBox";
-import swal from "sweetalert";
-import { Store } from "../Store";
-import getError from "../utils";
+import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
+import axios from 'axios';
+import moment from 'moment';
+import React, { useContext, useEffect, useReducer } from 'react';
+import { Button, Card, Col, ListGroup, Row } from 'react-bootstrap';
+import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import LoadingBox from '../components/LoadingBox';
+import MessageBox from '../components/MessageBox';
+import swal from 'sweetalert';
+import { Store } from '../Store';
+import getError from '../utils';
 
 //reducer for handle states
 function reducer(state, action) {
   switch (action.type) {
-    case "FETCH_REQUEST":
-      return { ...state, loading: true, error: "" };
-    case "FETCH_SUCCESS":
-      return { ...state, loading: false, order: action.payload, error: "" };
-    case "FETCH_FAIL":
+    case 'FETCH_REQUEST':
+      return { ...state, loading: true, error: '' };
+    case 'FETCH_SUCCESS':
+      return { ...state, loading: false, order: action.payload, error: '' };
+    case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
-    case "PAY_REQUEST":
+    case 'PAY_REQUEST':
       return { ...state, loadingPay: true };
-    case "PAY_SUCCESS":
+    case 'PAY_SUCCESS':
       return { ...state, loadingPay: false, successPay: true };
-    case "PAY_FAIL":
+    case 'PAY_FAIL':
       return { ...state, loadingPay: false, errorPay: action.payload };
-    case "PAY_RESET":
+    case 'PAY_RESET':
       return { ...state, loadingPay: false, successPay: false };
-    case "DELIVER_REQUEST":
+    case 'DELIVER_REQUEST':
       return { ...state, loadingDeliver: true };
-    case "DELIVER_SUCCESS":
+    case 'DELIVER_SUCCESS':
       return { ...state, loadingDeliver: false, successDeliver: true };
-    case "DELIVER_FAIL":
+    case 'DELIVER_FAIL':
       return { ...state, loadingDeliver: false };
-    case "DELIVER_RESET":
+    case 'DELIVER_RESET':
       return {
         ...state,
         loadingDeliver: false,
@@ -64,7 +64,7 @@ export default function OrderScreen() {
   const { state } = useContext(Store);
   const { userInfo } = state;
 
-  const params = useParams();
+  const params = useParams(); //access URL parameters
   const { id: orderId } = params;
   const navigate = useNavigate();
 
@@ -82,7 +82,7 @@ export default function OrderScreen() {
   ] = useReducer(reducer, {
     loading: true,
     order: {},
-    error: "",
+    error: '',
     successPay: false,
     loadingPay: false,
   });
@@ -90,6 +90,7 @@ export default function OrderScreen() {
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
 
   function createOrder(data, actions) {
+    // Use PayPal actions to create an order
     return actions.order
       .create({
         purchase_units: [
@@ -102,11 +103,12 @@ export default function OrderScreen() {
         return orderID;
       });
   }
-
+  // Function to handle the approval of a PayPal payment
   function onApprove(data, actions) {
+    // Capture the payment using PayPal actions
     return actions.order.capture().then(async function (details) {
       try {
-        dispatch({ type: "PAY_REQUEST" });
+        dispatch({ type: 'PAY_REQUEST' });
         //update order
         const { data } = await axios.put(
           `/api/orders/${order._id}/pay`,
@@ -115,27 +117,29 @@ export default function OrderScreen() {
             headers: { authorization: `Bearer ${userInfo.token}` },
           }
         );
-        dispatch({ type: "PAY_SUCCESS", payload: data });
-        toast.success("Order is paid");
+        dispatch({ type: 'PAY_SUCCESS', payload: data });
+        toast.success('Order is paid');
         console.log(details);
       } catch (err) {
-        dispatch({ type: "PAY_FAIL", payload: getError(err) });
+        dispatch({ type: 'PAY_FAIL', payload: getError(err) });
         toast.error(getError(err));
       }
     });
   }
-
+  // change the status as paid
   async function payOrderHandler() {
+    // Show a confirmation dialog using the 'swal' library
     swal({
-      title: "Are you sure?",
-      text: "Payment status of this order will be changed as Paid !",
-      icon: "warning",
+      title: 'Are you sure?',
+      text: 'Payment status of this order will be changed as Paid !',
+      icon: 'warning',
       buttons: true,
       dangerMode: true,
     }).then(async (willYes) => {
+      // Check if the user clicked 'Yes' in the confirmation dialog
       if (willYes) {
         try {
-          dispatch({ type: "PAY_REQUEST" });
+          dispatch({ type: 'PAY_REQUEST' });
           const { data } = await axios.put(
             `/api/orders/${order._id}/pay`,
             {},
@@ -143,16 +147,16 @@ export default function OrderScreen() {
               headers: { authorization: `Bearer ${userInfo.token}` },
             }
           );
-          dispatch({ type: "PAY_SUCCESS", payload: data });
-          toast.success("Order is paid");
+          dispatch({ type: 'PAY_SUCCESS', payload: data });
+          toast.success('Order is paid');
         } catch (err) {
-          dispatch({ type: "PAY_FAIL", payload: getError(err) });
+          dispatch({ type: 'PAY_FAIL', payload: getError(err) });
           toast.error(getError(err));
         }
       }
     });
   }
-
+  //paypal error
   function onError(err) {
     toast.error(getError(err));
   }
@@ -160,47 +164,48 @@ export default function OrderScreen() {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        dispatch({ type: "FETCH_REQUEST" });
+        dispatch({ type: 'FETCH_REQUEST' });
         //get order by id
         const { data } = await axios.get(`/api/orders/${orderId}`, {
           headers: { authorization: `Bearer ${userInfo.token}` },
         });
-        dispatch({ type: "FETCH_SUCCESS", payload: data });
+        dispatch({ type: 'FETCH_SUCCESS', payload: data });
       } catch (err) {
-        dispatch({ type: "FETCH_FAIL", payload: getError(err) });
+        dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
 
     if (!userInfo) {
-      return navigate("/login");
+      return navigate('/login');
     }
     if (
-      !order._id ||
-      successPay ||
-      successDeliver ||
-      (order._id && order._id !== orderId)
+      !order._id || // If there's no order ID
+      successPay || // If the payment was successful
+      successDeliver || // If the delivery was successful
+      (order._id && order._id !== orderId) // If the current order ID is different from the previous one
     ) {
       fetchOrder();
       if (successPay) {
-        dispatch({ type: "PAY_RESET" });
+        dispatch({ type: 'PAY_RESET' });
       }
       if (successDeliver) {
-        dispatch({ type: "DELIVER_RESET" });
+        dispatch({ type: 'DELIVER_RESET' });
       }
     } else {
+      // If none of the above conditions are met, load the PayPal script
       //paypal api
       const loadPaypalScript = async () => {
-        const { data: clientId } = await axios.get("/api/keys/paypal", {
+        const { data: clientId } = await axios.get('/api/keys/paypal', {
           headers: { authorization: `Bearer ${userInfo.token}` },
         });
         paypalDispatch({
-          type: "resetOptions",
+          type: 'resetOptions',
           value: {
-            "client-id": clientId,
-            currency: "USD",
+            'client-id': clientId,
+            currency: 'USD',
           },
         });
-        paypalDispatch({ type: "setLoadingStatus", value: "pending" });
+        paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
       };
       loadPaypalScript();
     }
@@ -213,18 +218,18 @@ export default function OrderScreen() {
     successPay,
     successDeliver,
   ]);
-
+  //change the status as dispatched
   async function dispatchOrderHandler() {
     swal({
-      title: "Are you sure?",
-      text: "Delivery status of this order will be changed as Dispatched !",
-      icon: "warning",
+      title: 'Are you sure?',
+      text: 'Delivery status of this order will be changed as Dispatched !',
+      icon: 'warning',
       buttons: true,
       dangerMode: true,
     }).then(async (willYes) => {
       if (willYes) {
         try {
-          dispatch({ type: "DELIVER_REQUEST" });
+          dispatch({ type: 'DELIVER_REQUEST' });
           //update order status
           const { data } = await axios.put(
             `/api/orders/${order._id}/dispatch`,
@@ -233,11 +238,11 @@ export default function OrderScreen() {
               headers: { authorization: `Bearer ${userInfo.token}` },
             }
           );
-          dispatch({ type: "DELIVER_SUCCESS", payload: data });
-          toast.success("Order is dispatched");
+          dispatch({ type: 'DELIVER_SUCCESS', payload: data });
+          toast.success('Order is dispatched');
         } catch (err) {
           toast.error(getError(err));
-          dispatch({ type: "DELIVER_FAIL" });
+          dispatch({ type: 'DELIVER_FAIL' });
         }
       }
     });
@@ -245,15 +250,15 @@ export default function OrderScreen() {
 
   async function paidOrderHandler() {
     swal({
-      title: "Are you sure?",
-      text: "Payment status of this order will be changed as Paid !",
-      icon: "warning",
+      title: 'Are you sure?',
+      text: 'Payment status of this order will be changed as Paid !',
+      icon: 'warning',
       buttons: true,
       dangerMode: true,
     }).then(async (willYes) => {
       if (willYes) {
         try {
-          dispatch({ type: "DELIVER_REQUEST" });
+          dispatch({ type: 'DELIVER_REQUEST' });
           //update order status
           const { data } = await axios.put(
             `/api/orders/${order._id}/dispatch`,
@@ -262,28 +267,28 @@ export default function OrderScreen() {
               headers: { authorization: `Bearer ${userInfo.token}` },
             }
           );
-          dispatch({ type: "DELIVER_SUCCESS", payload: data });
-          toast.success("Order is dispatched");
+          dispatch({ type: 'DELIVER_SUCCESS', payload: data });
+          toast.success('Order is dispatched');
         } catch (err) {
           toast.error(getError(err));
-          dispatch({ type: "DELIVER_FAIL" });
+          dispatch({ type: 'DELIVER_FAIL' });
         }
       }
     });
   }
-
+  // change the status as delivered
   async function deliverOrderHandler() {
     swal({
-      title: "Are you sure?",
-      text: "Delivery status of this order will be changed as Delivered !",
-      icon: "warning",
+      title: 'Are you sure?',
+      text: 'Delivery status of this order will be changed as Delivered !',
+      icon: 'warning',
       buttons: true,
       dangerMode: true,
     }).then(async (willYes) => {
       if (willYes) {
         try {
           //update order status
-          dispatch({ type: "DELIVER_REQUEST" });
+          dispatch({ type: 'DELIVER_REQUEST' });
           const { data } = await axios.put(
             `/api/orders/${order._id}/deliver`,
             {},
@@ -291,11 +296,11 @@ export default function OrderScreen() {
               headers: { authorization: `Bearer ${userInfo.token}` },
             }
           );
-          dispatch({ type: "DELIVER_SUCCESS", payload: data });
-          toast.success("Order is delivered");
+          dispatch({ type: 'DELIVER_SUCCESS', payload: data });
+          toast.success('Order is d');
         } catch (err) {
           toast.error(getError(err));
-          dispatch({ type: "DELIVER_FAIL" });
+          dispatch({ type: 'DELIVER_FAIL' });
         }
       }
     });
@@ -318,12 +323,12 @@ export default function OrderScreen() {
               <Card.Title>Shipping</Card.Title>
               <Card.Text>
                 <strong>Name:</strong> {order.shippingAddress.fullName} <br />
-                <strong>Address:</strong> {order.shippingAddress.address},{" "}
+                <strong>Address:</strong> {order.shippingAddress.address},{' '}
                 {order.shippingAddress.city}, {order.shippingAddress.postalCode}
               </Card.Text>
               {order.isDispatched ? (
                 <MessageBox variant="success">
-                  Dispatched at {moment(order.dispatchedAt).format("LLL")}
+                  Dispatched at {moment(order.dispatchedAt).format('LLL')}
                 </MessageBox>
               ) : (
                 <MessageBox variant="danger">Not Dispatched</MessageBox>
@@ -339,7 +344,7 @@ export default function OrderScreen() {
               </Card.Text>
               {order.isPaid ? (
                 <MessageBox variant="success">
-                  Paid at {moment(order.paidAt).format("LLL")}
+                  Paid at {moment(order.paidAt).format('LLL')}
                 </MessageBox>
               ) : (
                 <MessageBox variant="danger">Not paid</MessageBox>
@@ -359,7 +364,7 @@ export default function OrderScreen() {
                           src={item.image}
                           alt={item.name}
                           className="img-fluid rounded img-thumbnail"
-                        ></img>{" "}
+                        ></img>{' '}
                         <Link
                           to={`/product/${item.slug}`}
                           className="card-title-link"
@@ -406,14 +411,14 @@ export default function OrderScreen() {
                     </Col>
                   </Row>
                 </ListGroup.Item>
-
-                {userInfo.isAdmin == "false" && !order.isPaid && (
+                {/* //when customer order not paid */}
+                {userInfo.isAdmin == 'false' && !order.isPaid && (
                   <ListGroup.Item>
                     {isPending ? (
                       <LoadingBox />
                     ) : (
                       <div>
-                        {order.paymentMethod == "Card" && (
+                        {order.paymentMethod == 'Card' && (
                           <PayPalButtons
                             createOrder={createOrder}
                             onApprove={onApprove}
@@ -425,7 +430,8 @@ export default function OrderScreen() {
                     {loadingPay && <LoadingBox></LoadingBox>}
                   </ListGroup.Item>
                 )}
-                {userInfo.isAdmin == "true" &&
+                {/* //admin change the status as dispatch */}
+                {userInfo.isAdmin == 'true' &&
                   order.isPaid &&
                   !order.isDispatched && (
                     <ListGroup.Item>
@@ -437,8 +443,9 @@ export default function OrderScreen() {
                       </div>
                     </ListGroup.Item>
                   )}
-                {userInfo.isAdmin == "true" &&
-                  order.paymentMethod == "COD" &&
+                {/* //admin change the status as dispatch in cash on delivery method */}
+                {userInfo.isAdmin == 'true' &&
+                  order.paymentMethod == 'COD' &&
                   !order.isDispatched && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
@@ -449,7 +456,9 @@ export default function OrderScreen() {
                       </div>
                     </ListGroup.Item>
                   )}
-                {userInfo.isAdmin == "true" &&
+
+                {/* //admin change the status as paid */}
+                {userInfo.isAdmin == 'true' &&
                   !order.isPaid &&
                   order.isDispatched && (
                     <ListGroup.Item>
@@ -462,10 +471,10 @@ export default function OrderScreen() {
                     </ListGroup.Item>
                   )}
 
-                {/* {userInfo.isAgent == "true" && order.isPaid && order.isDispatched && order.deliveryStatus == "Dispatched" && ( */}
+                {/* // change the status as delivered */}
                 {order.isPaid &&
                   order.isDispatched &&
-                  order.deliveryStatus == "Dispatched" && (
+                  order.deliveryStatus == 'Dispatched' && (
                     <ListGroup.Item>
                       {loadingDeliver && <LoadingBox></LoadingBox>}
                       <div className="d-grid">

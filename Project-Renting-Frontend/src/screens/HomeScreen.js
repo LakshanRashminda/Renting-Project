@@ -63,6 +63,7 @@ const HomeScreen = () => {
 
                     <Carousel.Item>
                         <Row>
+                            {/* //Reverse the 'products' array, filter the first 4 elements, and map each product */}
                             {products.reverse().filter((product, index) => index <= 3).map((product, index) => (
 
                                 <Col key={product.slug} sm={6} md={4} lg={3} className="mb-3">
@@ -92,6 +93,7 @@ const HomeScreen = () => {
                 ) : (<Carousel interval={3000}>
                     <Carousel.Item>
                         <Row>
+                            {/* //Filter products with index between 7 and 10 */}
                             {products.filter((product, index) => (7 <= index && index <= 10)).map((product) => (
                                 <Col key={product.slug} sm={6} md={4} lg={3} className="mb-3">
                                     <Product product={product} ></Product>
@@ -102,6 +104,7 @@ const HomeScreen = () => {
 
                     <Carousel.Item>
                         <Row>
+                            {/* //Reverse the 'products' array, filter products with index between 2 and 5 */}
                             {products.reverse().filter((product, index) => (2 <= index && index <= 5)).map((product) => (
                                 <Col key={product.slug} sm={6} md={4} lg={3} className="mb-3">
                                     <Product product={product} ></Product>
@@ -124,6 +127,7 @@ const HomeScreen = () => {
                 ) : error ? (
                     <MessageBox variant='danger'>{error}</MessageBox>
                 ) : (<Row>
+                    {/* //Reverse the 'products' array and map each product */}
                     {products.reverse().map((product) => (
                         <Col key={product.slug} sm={6} md={4} lg={3} className="mb-3">
                             <Product product={product} ></Product>

@@ -46,7 +46,6 @@ const UserEditScreen = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
-  // const [isAgent, setIsAgent] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,7 +58,6 @@ const UserEditScreen = () => {
         setName(data.name);
         setEmail(data.email);
         setIsAdmin(data.isAdmin == "true" ? true : false);
-        // setIsAgent(data.isAgent == 'true' ? true : false);
         dispatch({ type: "FETCH_SUCCESS" });
       } catch (err) {
         dispatch({
@@ -78,7 +76,6 @@ const UserEditScreen = () => {
       //update user status by user id
       await axios.put(
         `/api/users/${userId}`,
-        // { _id: userId, name, email, isAdmin, isAgent },
         { _id: userId, name, email, isAdmin },
         {
           headers: { Authorization: `Bearer ${userInfo.token}` },
@@ -135,15 +132,6 @@ const UserEditScreen = () => {
             checked={isAdmin}
             onChange={(e) => setIsAdmin(e.target.checked)}
           />
-
-          {/* <Form.Check
-                        className="mb-3"
-                        type="checkbox"
-                        id="isAgent"
-                        label="Is Agent?"
-                        checked={isAgent}
-                        onChange={(e) => setIsAgent(e.target.checked)}
-                    /> */}
 
           <div className="mb-3 text-center">
             <Button disabled={loadingUpdate} type="submit">

@@ -10,8 +10,8 @@ import { toast } from 'react-toastify';
 //Cart Screen
 const CartScreen = () => {
     const navigate = useNavigate();
-    const { state, dispatch: ctxDispatch } = useContext(Store);
-    const { cart: { cartItems } } = state;
+    const { state, dispatch: ctxDispatch } = useContext(Store); // Extract state and dispatch function from the global context
+    const { cart: { cartItems } } = state; // Extract cartItems from the global state
 
     //fetch product by id
     const updateCartHandler = async (item, quantity) => {
@@ -20,11 +20,11 @@ const CartScreen = () => {
             toast.error('Sorry. Product is out of stock');
             return;
         }
-        ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
+        ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } }); // Dispatch an action to update the cart with the new item and quantity
     }
 
     const removeItemHandler = (item) => {
-        ctxDispatch({ type: 'CART_REMOVE_ITEM', payload: item });
+        ctxDispatch({ type: 'CART_REMOVE_ITEM', payload: item }); // Dispatch an action to remove the specified item from the cart
     }
 
     const checkoutHandler = () => {

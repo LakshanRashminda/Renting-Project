@@ -68,7 +68,7 @@ const ProductScreen = () => {
 
     const { state, dispatch: ctxDispatch } = useContext(Store);
     const { cart, userInfo } = state;
-
+    // add to cart button function
     const addToCartHandler = async () => {
         const existItem = cart.cartItems.find((x) => x._id === product._id);
         const quantity = existItem ? existItem.quantity + 1 : 1;
@@ -81,7 +81,7 @@ const ProductScreen = () => {
         ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...product, quantity } });
         navigate('/cart');
     }
-
+    // add the review and ratings
     const submitHandler = async (e) => {
         e.preventDefault();
         if (!comment || !rating) {
@@ -125,8 +125,7 @@ const ProductScreen = () => {
                 : (
                     <div>
                         <Row>
-
-                            <Col md={6}>
+                            <Col md={6}>                            
                                 <ReactImageMagnify style={{ position: 'relative', zIndex: '1', maxWidth: "100%" }}{...{
                                     smallImage: {
                                         alt: product.name,
@@ -244,6 +243,7 @@ const ProductScreen = () => {
                                                 <option value="5">5- Excelent</option>
                                             </Form.Select>
                                         </Form.Group>
+                                        //Use FloatingLabel component for enhanced textarea input 
                                         <FloatingLabel
                                             controlId="floatingTextarea"
                                             label="Comments"

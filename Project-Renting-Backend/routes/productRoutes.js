@@ -14,10 +14,10 @@ productRouter.get("/", async (req, res) => {
 //add new product router
 productRouter.post(
   "/",
-  isAuth,
+  isAuth,  // check the request is from an authenticated user
   isAdmin,
   expressAsyncHandler(async (req, res) => {
-    const newProduct = new Product({
+    const newProduct = new Product({  // Create a new product instance with some default values
       name: "sample name " + Date.now(),
       slug: "sample-name-" + Date.now(),
       image: "/images/sample.png",
@@ -32,8 +32,8 @@ productRouter.post(
       numReviews: 0,
       description: "sample description",
     });
-    const product = await newProduct.save();
-    res.send({ message: "Product Created", product });
+    const product = await newProduct.save();    // Save the new product to the database
+    res.send({ message: "Product Created", product });  // Send a response back to the client indicating that the product has been created
   })
 );
 
@@ -92,18 +92,19 @@ productRouter.get(
   isAdmin,
   expressAsyncHandler(async (req, res) => {
     const { query } = req;
-    const page = query.page || 1;
+    const page = query.page || 1;  // Extract page and pageSize from the query parameters
     const pageSize = query.pageSize || PAGE_SIZE;
 
-    const products = await Product.find()
-      .skip(pageSize * (page - 1))
-      .limit(pageSize);
-    const countProducts = await Product.countDocuments();
+    const products = await Product.find()  // Use Mongoose to query the database for products with pagination
+      .skip(pageSize * (page - 1))  // Calculate the number of documents to skip based on pagination
+      .limit(pageSize);  // Limit the number of documents returned per page
+    const countProducts = await Product.countDocuments();  // Count the total number of products in the database
+   // Send the response back to the client with the fetched products, count, and pagination information
     res.send({
       products,
       countProducts,
       page,
-      pages: Math.ceil(countProducts / pageSize),
+      pages: Math.ceil(countProducts / pageSize),  // Total number of pages based on pagination
     });
   })
 );
@@ -113,6 +114,8 @@ productRouter.get(
   "/search",
   expressAsyncHandler(async (req, res) => {
     const { query } = req;
+
+    // Extract query parameters with default values
     const pageSize = query.pageSize || PAGE_SIZE;
     const page = query.page || 1;
     const category = query.category || "";
@@ -121,6 +124,7 @@ productRouter.get(
     const order = query.order || "";
     const searchQuery = query.query || "";
 
+    // Define a filter for the product name based on the search query
     const queryFilter =
       searchQuery && searchQuery !== "all"
         ? {
@@ -133,6 +137,7 @@ productRouter.get(
 
     //filter product by category
     const categoryFilter = category && category !== "all" ? { category } : {};
+    // Filter products by rating
     const ratingFilter =
       rating && rating !== "all"
         ? {
@@ -148,11 +153,13 @@ productRouter.get(
         ? {
             // 1-1000
             price: {
-              $gte: Number(price.split("-")[0]),
-              $lte: Number(price.split("-")[1]),
+              $gte: Number(price.split("-")[0]), // Minimum price
+              $lte: Number(price.split("-")[1]), // Maximum price
             },
           }
         : {};
+    
+        // Determine the sort order based on the 'order' parameter
     const sortOrder =
       order === "featured"
         ? { featured: -1 }
@@ -164,7 +171,7 @@ productRouter.get(
         ? { rating: -1 }
         : order === "newest"
         ? { createdAt: -1 }
-        : { _id: -1 };
+        : { _id: -1 }; // Default to sorting by _id in descending order
 
     const products = await Product.find({
       ...queryFilter,
@@ -175,13 +182,15 @@ productRouter.get(
       .sort(sortOrder)
       .skip(pageSize * (page - 1))
       .limit(pageSize);
-
+    // Count the total number of products in the database that match the filters
     const countProducts = await Product.countDocuments({
       ...queryFilter,
       ...categoryFilter,
       ...priceFilter,
       ...ratingFilter,
     });
+
+    // Send the response back to the client with the filtered products, count, and pagination information
     res.send({
       products,
       countProducts,
@@ -196,31 +205,33 @@ productRouter.post(
   "/:id/reviews",
   isAuth,
   expressAsyncHandler(async (req, res) => {
-    const productId = req.params.id;
+    const productId = req.params.id; // Extract the value of the URL parameter named "id"
     const product = await Product.findById(productId);
     if (product) {
-      if (product.reviews.find((x) => x.name === req.user.name)) {
+      if (product.reviews.find((x) => x.name === req.user.name)) {   // Check if there is already a review from the authenticated user in the reviews array of the product
         return res
           .status(400)
           .send({ message: "You already submitted a review" });
       }
-
+      // Create a new review object with data from the request
       const review = {
         name: req.user.name,
         rating: Number(req.body.rating),
         comment: req.body.comment,
       };
-      product.reviews.push(review);
-      product.numReviews = product.reviews.length;
+      product.reviews.push(review); // Add the new review to the 'reviews' array of the product
+      product.numReviews = product.reviews.length; // Update the 'numReviews' property of the product to reflect the new number of reviews
+      
+      // Calculate the average rating for the product based on all reviews
       product.rating =
         product.reviews.reduce((a, c) => c.rating + a, 0) /
         product.reviews.length;
-      const updatedProduct = await product.save();
+      const updatedProduct = await product.save(); // Save the updated product to the database
       res.status(201).send({
         message: "Review Created",
         review: updatedProduct.reviews[updatedProduct.reviews.length - 1],
-        numReviews: product.numReviews,
-        rating: product.rating,
+        numReviews: product.numReviews, // Updated number of reviews for the product
+        rating: product.rating, // Updated average rating for the product
       });
     } else {
       res.status(404).send({ message: "Product Not Found" });

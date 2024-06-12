@@ -32,8 +32,6 @@ const SigninScreen = () => {
       localStorage.setItem("userInfo", JSON.stringify(data));
       if (data.isAdmin == "true") {
         navigate("/admin/dashboard");
-        // } else if (data.isAgent == "true") {
-        //     navigate('/agent/reservations');
       } else {
         navigate(redirect || "/");
       }

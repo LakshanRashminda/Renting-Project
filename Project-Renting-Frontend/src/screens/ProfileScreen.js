@@ -35,7 +35,7 @@ const ProfileScreen = () => {
     const [dispatch] = useReducer(reducer, {
         loadingUpdate: false
     });
-
+    //update the user profile
     const submitHandler = async (e) => {
         e.preventDefault();
         try {

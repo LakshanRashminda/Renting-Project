@@ -22,6 +22,7 @@ const RentPaymentMethodScreen = () => {
   //     }
   // }, [deliveryAddress, navigate]);
 
+  //save the payment method
   const submitHandler = (e) => {
     e.preventDefault();
     ctxDispatch({ type: "SAVE_PAYMENT_METHOD", payload: paymentMethodName });

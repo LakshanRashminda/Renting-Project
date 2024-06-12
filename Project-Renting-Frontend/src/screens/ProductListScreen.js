@@ -87,6 +87,7 @@ const ProductListScreen = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // Make a GET request to fetch products with pagination based on the 'page' parameter
                 const { data } = await axios.get(`/api/products/admin?page=${page} `, {
                     headers: { Authorization: `Bearer ${userInfo.token}` },
                 });
@@ -94,15 +95,15 @@ const ProductListScreen = () => {
                 dispatch({ type: 'FETCH_SUCCESS', payload: data });
             } catch (err) { }
         };
-
+        // Check if a product deletion was successful
         if (successDelete) {
             dispatch({ type: 'DELETE_RESET' });
         } else {
             fetchData();
         }
-    }, [page, userInfo, successDelete]);
+    }, [page, userInfo, successDelete]); //re-run the effect when 'page', 'userInfo', or 'successDelete' changes
 
-
+    //add product
     const createHandler = async () => {
         if (true) {
             try {
@@ -125,7 +126,7 @@ const ProductListScreen = () => {
             }
         }
     };
-
+    //delete the product
     const deleteHandler = async (product) => {
         swal({
             title: "Are you sure?",

@@ -50,8 +50,8 @@ const OrderListScreen = () => {
     const { state } = useContext(Store);
     const { userInfo } = state;
     const [startDate, setStartDate] = useState();
-    const [endDate, setEndDate] = useState();
-    const componentRef = useRef();
+    const [endDate, setEndDate] = useState();  // State for tracking the end date
+    const componentRef = useRef();  //create multipal objects
 
     const [{ loading, error, summary, orders, loadingDelete }, dispatch] =
         useReducer(reducer, {
@@ -117,7 +117,7 @@ const OrderListScreen = () => {
         }
     };
 
-    //get order summary by date
+    //get order summary by date, filter the orders by date
     const fetchDataFilter = async () => {
         try {
             dispatch({ type: 'FETCH_REQUEST' });
@@ -147,6 +147,8 @@ const OrderListScreen = () => {
             <Col md={5} className="mt-4 mb-2"><h2 >Orders</h2></Col>
             <Col md={2} className="mb-3">
                 <Form.Label >From :</Form.Label>
+
+                {/* //moment library to calculate the difference in days between the endDate and startDate */}
                 <Form.Control type="date" name="startingDate" placeholder="DateRange" onChange={(e) => { setStartDate(e.target.value); moment(endDate).diff(startDate, 'days') > 0 ? setEndDate(endDate) : setEndDate(e.target.value) }}></Form.Control>
             </Col>
             <Col md={2} className="mb-3">
@@ -174,7 +176,7 @@ const OrderListScreen = () => {
                             <Row>
                                 <Col xs={9}>
                                     {
-                                        summary && summary.orders && summary.orders[0]
+                                        summary && summary.orders && summary.orders[0]  //count of orders
                                             ? summary.orders[0].numOrders
                                             : 0
                                     }
@@ -196,7 +198,7 @@ const OrderListScreen = () => {
                             <Row>
                                 <Col xs={9}>
                                     {
-                                        summary && summary.preparingOrders && summary.preparingOrders[0]
+                                        summary && summary.preparingOrders && summary.preparingOrders[0]  //count of preparing orders
                                             ? summary.preparingOrders[0].count
                                             : 0
                                     }
@@ -218,7 +220,7 @@ const OrderListScreen = () => {
                             <Row>
                                 <Col xs={9}>
                                     {
-                                        summary && summary.completedOrders && summary.completedOrders[0]
+                                        summary && summary.completedOrders && summary.completedOrders[0]  //count of completed orders
                                             ? summary.completedOrders[0].count
                                             : 0
                                     }
@@ -240,7 +242,7 @@ const OrderListScreen = () => {
                             <Row>
                                 <Col xs={9}>
                                     {
-                                        summary && summary.orders && summary.orders[0]
+                                        summary && summary.orders && summary.orders[0]  // summary of total sales
                                             ? summary.orders[0].totalSales.toFixed(2)
                                             : 0
                                     }
@@ -284,7 +286,9 @@ const OrderListScreen = () => {
                     {orders.map((order) => (
                         <tr key={order._id}>
                             <td>{order._id}</td>
-                            <td>{order.user ? order.user.name : 'DELETED USER'}</td>
+                            <td>{order.user ? order.user.name : 'DELETED USER'}</td> 
+                            {/* //If the user doesn't exist  display the string 'DELETED USER'. */}
+                            {/* <td></td> */}
                             <td>{order.createdAt.substring(0, 10)}</td>
                             <td>{order.totalPrice.toFixed(2)}</td>
                             <td>{order.isPaid ? order.paidAt.substring(0, 10) : 'No'}</td>

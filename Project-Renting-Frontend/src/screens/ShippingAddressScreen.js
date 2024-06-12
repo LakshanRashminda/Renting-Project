@@ -33,21 +33,6 @@ const ShippingAddressScreen = () => {
     }
   }, [userInfo, navigate]);
 
-  // useEffect(() => {
-  //   const fetchLoactionData = async () => {
-  //     try {
-  //       //get all locations
-  //       const { data } = await axios.get(`/api/locations/get-all`, {
-  //         headers: { Authorization: `Bearer ${userInfo.token}` },
-  //       });
-  //       setLocationList(data);
-  //     } catch (err) {
-  //       toast.error(getError(err));
-  //     }
-  //   };
-
-  //   fetchLoactionData();
-  // }, [userInfo]);
 
   const addressHandler = (e) => {
     e.preventDefault();
@@ -126,14 +111,7 @@ const ShippingAddressScreen = () => {
             onChange={() => setIsPickup(!isPickup)}
           /> */}
 
-          {/* <Form.Check
-                        className="mb-3 radio-checked h6"
-                        type="radio"
-                        label="Pickup from an agent"
-                        name="adress"
-                        checked={isPickup}
-                        onChange={() => setIsPickup(!(isPickup))}
-                    /> */}
+         
           <br />
           {/* <hr /> */}
           {isPickup ? (
@@ -162,10 +140,6 @@ const ShippingAddressScreen = () => {
                   })}
                 </Form.Select>
 
-                {/* <Form.Select size="lg" onChange={(e) => setAddress(e.target.value)} required >
-                                        <option value="TreckPing Showroom - No.04, Polgolla, Kandy">TreckPing Showroom - No.04, Polgolla, Kandy</option>
-                                        <option value="6/11, Badulla Rd, Bibila">6/11, Badulla Rd, Bibila</option>
-                                    </Form.Select> */}
               </Form.Group>
               <br />
               <div className="mb-3">

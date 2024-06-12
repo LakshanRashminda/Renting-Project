@@ -38,7 +38,7 @@ const ReservationHistoryScreen = () => {
         const fetchData = async () => {
             dispatch({ type: 'FETCH_REQUEST' });
             try {
-                //get reservations of the selected customer
+                //get reservations of the selected customer / logged in customer
                 const { data } = await axios.get(
                     `/api/reservations/mine`,
                     { headers: { authorization: `Bearer ${userInfo.token}` } }

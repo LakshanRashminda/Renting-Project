@@ -199,8 +199,8 @@ function App() {
                       ))}
                     </NavDropdown>
                   )}
-
-                  {/* view shopping cart */}
+{/* 
+                  view shopping cart */}
                   {/* {(userInfo == null || (userInfo.isAdmin === "false" && userInfo.isAgent === "false")) && */}
                   {(userInfo == null || userInfo.isAdmin === "false") &&
                     (localStorage.getItem("BuyOrRent") == "Buy" ? (

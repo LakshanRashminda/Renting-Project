@@ -28,7 +28,7 @@ reservationRouter.post(
                 $gte: [{ $dateToString: { date: "$createdAt", format: "%Y-%m-%dT%H:%M:%SZ", timezone: "UTC" } }, req.body.startDate],
                 $lt: [{ $dateToString: { date: "$createdAt", format: "%Y-%m-%dT%H:%M:%SZ", timezone: "UTC" } }, req.body.endDate]
             }
-        });
+        }).populate('user', 'name');
         if (reservation) {
             res.send(reservation);
         }
@@ -39,6 +39,7 @@ reservationRouter.post(
 )
 
 //get reservations summary (data for charts) 
+// filter by reservation date
 reservationRouter.post(
     '/filter-by-date',
     isAuth,
@@ -65,7 +66,7 @@ reservationRouter.post(
                 }
             }
         ]);
-
+        // filter preparing reservations and getting count
         const preparingReservations = await Reservation.aggregate([
             {
                 $match: {
@@ -88,7 +89,7 @@ reservationRouter.post(
                 }
             }
         ]);
-
+        // filter completed researvations and get the count
         const completedReservations = await Reservation.aggregate([
             {
                 $match: {
@@ -141,7 +142,7 @@ reservationRouter.post(
 reservationRouter.post(
     '/', isAuth, expressAsyncHandler(async (req, res) => {
         const newReservation = Reservation({
-            orderItems: req.body.orderItems.map((x) => ({ ...x, product: x._id })),
+            orderItems: req.body.orderItems.map((x) => ({ ...x, product: x._id })), // map and modify reservation items
             shippingAddress: req.body.shippingAddress,
             paymentMethod: req.body.paymentMethod,
             itemsPrice: req.body.itemsPrice,
@@ -158,6 +159,7 @@ reservationRouter.post(
 
 
 //get reservations by user router
+// get user reservations
 reservationRouter.get(
     '/mine', isAuth, expressAsyncHandler(async (req, res) => {
         const reservation = await Reservation.find({ user: req.user._id });
@@ -224,6 +226,7 @@ reservationRouter.post(
 
 
 //get reservation by id router
+// get reservation by reservation id
 reservationRouter.get(
     '/:id', isAuth, expressAsyncHandler(async (req, res) => {
         const reservation = await Reservation.findById(req.params.id);
@@ -237,7 +240,8 @@ reservationRouter.get(
     })
 );
 
-//update reservation by id router
+//update reservation by id routers
+// update reservation delivery status as dispatched
 reservationRouter.put(
     '/:id/dispatch',
     isAuth,
@@ -352,6 +356,7 @@ reservationRouter.put(
 
 
 //update payment status by reservation id
+//update payment status as paid
 reservationRouter.put(
     '/:id/pay',
     isAuth,

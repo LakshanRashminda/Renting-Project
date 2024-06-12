@@ -46,8 +46,8 @@ const reducer = (state, action) => {
 const ProductEditScreen = () => {
 
     const navigate = useNavigate();
-    const params = useParams();
-    const { id: productId } = params;
+    const params = useParams(); // access parameter from the current object
+    const { id: productId } = params; // Extract the 'id' parameter and assign it to 'productId'
 
     const { state } = useContext(Store);
     const { userInfo } = state;
@@ -74,6 +74,7 @@ const ProductEditScreen = () => {
             try {
                 dispatch({ type: 'FETCH_REQUEST' });
                 //get product by id
+                //get product by  product id
                 const { data } = await axios.get(`/api/products/${productId}`);
                 setName(data.name);
                 setSlug(data.slug);
@@ -133,7 +134,7 @@ const ProductEditScreen = () => {
         }
     };
 
-
+    //upload image
     const uploadFileHandler = async (e, forImages) => {
         const file = e.target.files[0];
         const bodyFormData = new FormData();
@@ -156,12 +157,31 @@ const ProductEditScreen = () => {
         }
     };
 
+    //count in stock
+    const handleCountInStockChange = (e) => {
+        // Ensure only positive numbers are allowed
+        const input = e.target.value;
+        if (/^\d*$/.test(input)) {  // Using regular expression to check if it's a positive integer
+          setCountInStock(input);
+        }
+      };
+    
+      //count in stock rent
+    const handleCountInStockRent = (e) => {
+        // Ensure only positive numbers are allowed
+        const inputCount = e.target.value;
+        if (/^\d*$/.test(inputCount)) {  // Using regular expression to check if it's a positive integer
+            setCountInStockForRent(inputCount);
+        }
+      };
+    
+
     return (
         <Container className="small-container">
             <Helmet>
                 <title>Edit Product </title>
             </Helmet>
-            <div className='text-center'><h2 className="mb-5">Edit Product </h2></div>
+            <div className='text-center'><h2 className="mb-5"> Product </h2></div>
             
 
             {loading ? (
@@ -202,14 +222,14 @@ const ProductEditScreen = () => {
                             required
                         />
                     </Form.Group>
-                    <Form.Group className="mb-3" controlId="name">
+                    {/* <Form.Group className="mb-3" controlId="name">
                         <Form.Label>Penalty charges per day</Form.Label>
                         <Form.Control
                             value={penalty}
                             onChange={(e) => setPenalty(e.target.value)}
                             required
                         />
-                    </Form.Group>
+                    </Form.Group> */}
 
                     <Form.Group className="mb-3" controlId="imageFile">
                         <Form.Label>Upload Image</Form.Label>
@@ -240,7 +260,8 @@ const ProductEditScreen = () => {
                         <Form.Control
                             type='number'
                             value={countInStock}
-                            onChange={(e) => setCountInStock(e.target.value)}
+                            // onChange={(e) => setCountInStock(e.target.value)}
+                            onChange={handleCountInStockChange}
                             required
                         />
 
@@ -250,7 +271,8 @@ const ProductEditScreen = () => {
                         <Form.Control
                             type='number'
                             value={countInStockForRent}
-                            onChange={(e) => setCountInStockForRent(e.target.value)}
+                            // onChange={(e) => setCountInStockForRent(e.target.value)}
+                            onChange={handleCountInStockRent}
                             required
                         />
 

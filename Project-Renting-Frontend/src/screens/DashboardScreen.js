@@ -14,8 +14,9 @@ import {
 } from "react-icons/fa";
 
 //reducer for handle states
+//  takes the current state and an action as parameters and returns the new state based on the action type
 const reducer = (state, action) => {
-  switch (action.type) {
+  switch (action.type) {  // Switch statement to handle different action types
     case "FETCH_REQUEST":
       return { ...state, loading: true };
     case "FETCH_SUCCESS":
@@ -33,11 +34,11 @@ const reducer = (state, action) => {
 
 //Dashboard Screen
 const DashboardScreen = () => {
-  const [{ loading, summary, error }, dispatch] = useReducer(reducer, {
-    loading: true,
-    error: "",
+  const [{ loading, summary, error }, dispatch] = useReducer(reducer, {  // Use the useReducer hook to manage state related to the dashboard
+    loading: true, // A flag indicating whether data is being loaded
+    error: "",  // A variable to store any error messages
   });
-
+  // Use the useContext hook to access the global state from the 'Store' context
   const { state } = useContext(Store);
   const { userInfo } = state;
 
@@ -79,7 +80,7 @@ const DashboardScreen = () => {
                     <Row>
                       <Col xs={1}></Col>
                       <Col xs={8}>
-                        {summary.users && summary.users[0]
+                        {summary.users && summary.users[0]  //count of users
                           ? summary.users[0].numUsers
                           : 0}
                       </Col>
@@ -99,9 +100,10 @@ const DashboardScreen = () => {
                     <Row>
                       <Col xs={1}></Col>
                       <Col xs={8}>
-                        {summary.orders && summary.users[0]
-                          ? summary.orders[0].numOrders
-                          : 0}
+                        {summary.orders && summary.users[0] // Check if 'orders' and 'users[0]' exist
+                          ? summary.orders[0].numOrders     // If true, render the number of orders from the summary
+                          : 0}    
+                             {/* // If false, render 0 */}
                       </Col>
                       <Col xs={3}>
                         <FaFileImport></FaFileImport>
@@ -119,7 +121,7 @@ const DashboardScreen = () => {
                     <Row>
                       <Col xs={1}></Col>
                       <Col xs={8}>
-                        {summary.reservations && summary.reservations[0]
+                        {summary.reservations && summary.reservations[0]  //number of reservations
                           ? summary.reservations[0].numOrders
                           : 0}
                       </Col>
@@ -141,7 +143,7 @@ const DashboardScreen = () => {
                       <Col xs={9}>
                         {summary.orders && summary.users[0]
                           ? (
-                              parseInt(summary.orders[0].totalSales) +
+                              parseInt(summary.orders[0].totalSales) +    //parse a string and convert it into an integer
                               parseInt(summary.reservations[0].totalSales)
                             ).toFixed(2)
                           : 0}{" "}
@@ -166,7 +168,7 @@ const DashboardScreen = () => {
           <Row>
             <Col md={6}>
               <div className="my-4 ">
-                {summary.monthlyOrders.length === 0 ? (
+                {summary.monthlyOrders.length === 0 ? ( // If the length is 0, render the following component
                   <MessageBox>Income from orders</MessageBox>
                 ) : (
                   <Card>
@@ -225,120 +227,7 @@ const DashboardScreen = () => {
             </Col>
           </Row>
 
-          {/* <Row>
-            <Col md={4}>
-              <div className="my-3">
-                {summary.productCategories.length === 0 ? (
-                  <MessageBox>No Category</MessageBox>
-                ) : (
-                  <Card>
-                    <Card.Body>
-                      <center>
-                        <h2 className="mt-2">Categories</h2>
-                      </center>
-                      <Chart
-                        width="100%"
-                        height="400px"
-                        chartType="PieChart"
-                        options={{
-                          is3D: true,
-                          legend: { position: "bottom" },
-                          pieSliceText: "label",
-                          slices: {
-                            0: { color: "#4B4B66" },
-                            1: { color: "#7FDD92" },
-                            3: { color: "#34BBD2" },
-                            5: { color: "#FFF181" },
-                            7: { color: "#64A4ED" },
-                          },
-                        }}
-                        loader={<div>Loading Chart...</div>}
-                        data={[
-                          ["Category", "Products"],
-                          ...summary.productCategories.map((x) => [
-                            x._id,
-                            x.count,
-                          ]),
-                        ]}
-                      ></Chart>
-                    </Card.Body>
-                  </Card>
-                )}
-              </div>
-            </Col>
-
-            <Col md={4}>
-              <div className="my-3">
-                {summary.productCategories.length === 0 ? (
-                  <MessageBox>No Category</MessageBox>
-                ) : (
-                  <Card>
-                    <Card.Body>
-                      <center>
-                        <h2 className="mt-2">Top Selling Products</h2>
-                      </center>
-                      <Chart
-                        width="100%"
-                        height="400px"
-                        chartType="PieChart"
-                        options={{
-                          is3D: true,
-                          legend: { position: "bottom" },
-                          pieSliceText: "label",
-                          slices: {
-                            0: { color: "#4B4B66" },
-                            1: { color: "#7FDD92" },
-                          },
-                        }}
-                        loader={<div>Loading Chart...</div>}
-                        data={[
-                          ["Product", "Sells"],
-                          ["Webr BBQ Grill", 8],
-                          ["Paracord 550 Rope", 12],
-                          ["High Ankle Boots", 15],
-                        ]}
-                      ></Chart>
-                    </Card.Body>
-                  </Card>
-                )}
-              </div>
-            </Col>
-
-            <Col md={4}>
-              <div className="my-3">
-                {summary.productCategories.length === 0 ? (
-                  <MessageBox>No Category</MessageBox>
-                ) : (
-                  <Card>
-                    <center>
-                      <h2 className="mt-2">Best Selling Locations</h2>
-                    </center>
-                    <Chart
-                      width="100%"
-                      height="400px"
-                      chartType="PieChart"
-                      options={{
-                        is3D: true,
-                        legend: { position: "bottom" },
-                        pieSliceText: "label",
-                        slices: {
-                          0: { color: "#4B4B66" },
-                          1: { color: "#7FDD92" },
-                        },
-                      }}
-                      loader={<div>Loading Chart...</div>}
-                      data={[
-                        ["City", "Sells"],
-                        ["Kandy", 28],
-                        ["Colombo", 21],
-                        ["Galle", 18],
-                      ]}
-                    ></Chart>
-                  </Card>
-                )}
-              </div>
-            </Col>
-          </Row> */}
+          
         </>
       )}
     </div>

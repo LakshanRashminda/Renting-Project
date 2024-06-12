@@ -66,11 +66,13 @@ const SignupScreen = () => {
                     <Form.Control required onChange={(e) => setName(e.target.value)} />
                 </Form.Group>
 
+                {/* //email validation */}
                 <Form.Group className='mb-3' controlId='email'>
                     <Form.Label>Email</Form.Label>
                     <Form.Control type='email' required onChange={(e) => setEmail(e.target.value)} />
                 </Form.Group>
-
+                
+                {/* password validation */}
                 <Form.Group className='mb-3' controlId='password'>
                     <Form.Label>Password</Form.Label>
                     <Form.Control type='password' required onChange={(e) => setPassword(e.target.value)} />

@@ -15,6 +15,7 @@ const RentCartScreen = () => {
     const { rentCart: { rentCartItems } } = state;
 
     //get product by id
+    //update the cart item quantity
     const updateCartHandler = async (item, quantity) => {
         const { data } = await axios.get(`/api/products/${item._id}`);
         if (data.countInStockForRent < quantity) {
@@ -23,11 +24,11 @@ const RentCartScreen = () => {
         }
         ctxDispatch({ type: 'RENT_CART_ADD_ITEM', payload: { ...item, quantity } });
     }
-
+    // remove items from rent cart
     const removeItemHandler = (item) => {
         ctxDispatch({ type: 'RENT_CART_REMOVE_ITEM', payload: item });
     }
-
+    //proceed to checkout
     const checkoutHandler = () => {
         navigate('/signin?redirect=/pickuplocation')
         // navigate('/signin?redirect=/shipping')
